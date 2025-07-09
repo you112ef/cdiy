@@ -66,13 +66,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'relative bg-bolt-elements-background-depth-2 backdrop-blur p-3 rounded-lg border border-bolt-elements-borderColor relative w-full max-w-chat mx-auto z-prompt',
-
-        /*
-         * {
-         *   'sticky bottom-2': chatStarted,
-         * },
-         */
+        'relative bg-zinc-800/70 p-4 rounded-xl shadow-inner border border-zinc-700 relative w-full max-w-chat mx-auto z-prompt backdrop-blur-sm',
       )}
     >
       <svg className={classNames(styles.PromptEffectContainer)}>
@@ -86,10 +80,10 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             gradientUnits="userSpaceOnUse"
             gradientTransform="rotate(-45)"
           >
-            <stop offset="0%" stopColor="#b44aff" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#b44aff" stopOpacity="80%"></stop>
-            <stop offset="50%" stopColor="#b44aff" stopOpacity="80%"></stop>
-            <stop offset="100%" stopColor="#b44aff" stopOpacity="0%"></stop>
+            <stop offset="0%" stopColor="#a855f7" stopOpacity="0%"></stop>
+            <stop offset="40%" stopColor="#a855f7" stopOpacity="80%"></stop>
+            <stop offset="50%" stopColor="#a855f7" stopOpacity="80%"></stop>
+            <stop offset="100%" stopColor="#a855f7" stopOpacity="0%"></stop>
           </linearGradient>
           <linearGradient id="shine-gradient">
             <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
@@ -150,15 +144,15 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         )}
       </ClientOnly>
       {props.selectedElement && (
-        <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-bolt-elements-borderColor text-bolt-elements-textPrimary flex py-1 px-2.5 font-medium text-xs">
+        <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-zinc-600 text-white flex py-1 px-2.5 font-medium text-xs bg-zinc-800">
           <div className="flex gap-2 items-center lowercase">
-            <code className="bg-accent-500 rounded-4px px-1.5 py-1 mr-0.5 text-white">
+            <code className="bg-purple-500 rounded px-1.5 py-1 mr-0.5 text-white text-xs">
               {props?.selectedElement?.tagName}
             </code>
             selected for inspection
           </div>
           <button
-            className="bg-transparent text-accent-500 pointer-auto"
+            className="bg-transparent text-purple-400 hover:text-purple-300 transition-colors"
             onClick={() => props.setSelectedElement?.(null)}
           >
             Clear
@@ -166,30 +160,30 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         </div>
       )}
       <div
-        className={classNames('relative shadow-xs border border-bolt-elements-borderColor backdrop-blur rounded-lg')}
+        className={classNames('relative shadow-md border border-zinc-600 backdrop-blur rounded-lg bg-zinc-800')}
       >
         <textarea
           ref={props.textareaRef}
           className={classNames(
-            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
+            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-white placeholder-zinc-400 bg-transparent text-sm',
             'transition-all duration-200',
-            'hover:border-bolt-elements-focus',
+            'focus:ring-2 focus:ring-purple-500/50',
           )}
           onDragEnter={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '2px solid #1488fc';
+            e.currentTarget.style.border = '2px solid #a855f7';
           }}
           onDragOver={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '2px solid #1488fc';
+            e.currentTarget.style.border = '2px solid #a855f7';
           }}
           onDragLeave={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+            e.currentTarget.style.border = '1px solid #52525b';
           }}
           onDrop={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '1px solid var(--bolt-elements-borderColor)';
+            e.currentTarget.style.border = '1px solid #52525b';
 
             const files = Array.from(e.dataTransfer.files);
             files.forEach((file) => {
@@ -260,20 +254,27 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <div className="flex justify-between items-center text-sm p-4 pt-2">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-            <IconButton title="Upload file" className="transition-all" onClick={() => props.handleFileUpload()}>
+            <IconButton 
+              title="Upload file" 
+              className="transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2" 
+              onClick={() => props.handleFileUpload()}
+            >
               <div className="i-ph:paperclip text-xl"></div>
             </IconButton>
             <IconButton
               title="Enhance prompt"
               disabled={props.input.length === 0 || props.enhancingPrompt}
-              className={classNames('transition-all', props.enhancingPrompt ? 'opacity-100' : '')}
+              className={classNames(
+                'transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2',
+                props.enhancingPrompt ? 'opacity-100' : 'disabled:opacity-50'
+              )}
               onClick={() => {
                 props.enhancePrompt?.();
                 toast.success('Prompt enhanced!');
               }}
             >
               {props.enhancingPrompt ? (
-                <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
+                <div className="i-svg-spinners:90-ring-with-bg text-purple-400 text-xl animate-spin"></div>
               ) : (
                 <div className="i-bolt:stars text-xl"></div>
               )}
@@ -289,10 +290,10 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               <IconButton
                 title="Discuss"
                 className={classNames(
-                  'transition-all flex items-center gap-1 px-1.5',
+                  'transition-all flex items-center gap-1 px-1.5 rounded-lg p-2',
                   props.chatMode === 'discuss'
-                    ? '!bg-bolt-elements-item-backgroundAccent !text-bolt-elements-item-contentAccent'
-                    : 'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault',
+                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50'
+                    : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white',
                 )}
                 onClick={() => {
                   props.setChatMode?.(props.chatMode === 'discuss' ? 'build' : 'discuss');
@@ -304,11 +305,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             )}
             <IconButton
               title="Model Settings"
-              className={classNames('transition-all flex items-center gap-1', {
-                'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
-                  props.isModelSettingsCollapsed,
-                'bg-bolt-elements-item-backgroundDefault text-bolt-elements-item-contentDefault':
-                  !props.isModelSettingsCollapsed,
+              className={classNames('transition-all flex items-center gap-1 rounded-lg p-2', {
+                'bg-purple-500/20 text-purple-300 border border-purple-500/50': props.isModelSettingsCollapsed,
+                'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white': !props.isModelSettingsCollapsed,
               })}
               onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
               disabled={!props.providerList || props.providerList.length === 0}
@@ -318,9 +317,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             </IconButton>
           </div>
           {props.input.length > 3 ? (
-            <div className="text-xs text-bolt-elements-textTertiary">
-              Use <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Shift</kbd> +{' '}
-              <kbd className="kdb px-1.5 py-0.5 rounded bg-bolt-elements-background-depth-2">Return</kbd> a new line
+            <div className="text-xs text-zinc-400">
+              Use <kbd className="kdb px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Shift</kbd> +{' '}
+              <kbd className="kdb px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Return</kbd> for a new line
             </div>
           ) : null}
           <SupabaseConnection />

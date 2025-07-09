@@ -35,8 +35,8 @@ interface ControlPanelProps {
 const BETA_TABS = new Set<TabType>(['service-status', 'local-providers']);
 
 const BetaLabel = () => (
-  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20">
-    <span className="text-[10px] font-medium text-purple-600 dark:text-purple-400">BETA</span>
+  <div className="absolute top-2 right-2 text-xs bg-purple-500 text-white rounded-full px-2 py-0.5 font-medium">
+    BETA
   </div>
 );
 
@@ -65,7 +65,6 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
     if (!tabConfiguration?.userTabs || !Array.isArray(tabConfiguration.userTabs)) {
       console.warn('Invalid tab configuration, resetting to defaults');
       resetTabConfiguration();
-
       return [];
     }
 
@@ -199,111 +198,124 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
   return (
     <RadixDialog.Root open={open}>
       <RadixDialog.Portal>
-        <div className="fixed inset-0 flex items-center justify-center z-[100] modern-scrollbar">
-          <RadixDialog.Overlay className="absolute inset-0 bg-black/70 dark:bg-black/80 backdrop-blur-sm transition-opacity duration-200" />
+        <div className="fixed inset-0 flex items-center justify-center z-[100] p-4">
+          <RadixDialog.Overlay className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-200" />
 
           <RadixDialog.Content
             aria-describedby={undefined}
             onEscapeKeyDown={handleClose}
             onPointerDownOutside={handleClose}
-            className="relative z-[101]"
+            className="relative z-[101] w-full max-w-6xl max-h-[90vh] mx-auto"
           >
             <div
               className={classNames(
-                'w-[95vw] max-w-[1200px] sm:w-[90vw] lg:w-[1200px] h-[90vh] max-h-[800px] sm:max-h-[90vh]',
-                'bg-bolt-elements-background-depth-1',
-                'rounded-xl sm:rounded-2xl shadow-2xl',
-                'border border-bolt-elements-borderColor',
+                'bg-zinc-900 rounded-2xl shadow-xl border border-zinc-700',
                 'flex flex-col overflow-hidden',
                 'relative',
                 'transform transition-all duration-200 ease-out',
                 open ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4',
               )}
             >
-              <div className="absolute inset-0 overflow-hidden rounded-xl sm:rounded-2xl">
+              <div className="absolute inset-0 overflow-hidden rounded-2xl opacity-10">
                 <BackgroundRays />
               </div>
-              <div className="relative z-10 flex flex-col h-full">
+              
+              <div className="relative z-10 flex flex-col h-full max-h-[90vh]">
                 {/* Header */}
-                <div className="flex items-center justify-between mobile-p-md border-b border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center mobile-gap-md">
+                <div className="flex items-center justify-between p-4 md:p-6 border-b border-zinc-700 bg-zinc-800/50 rounded-t-2xl">
+                  <div className="flex items-center gap-3 md:gap-4">
                     {(activeTab || showTabManagement) && (
                       <button
                         onClick={handleBack}
-                        className="flex items-center justify-center mobile-btn-icon rounded-full bg-transparent hover:bg-purple-500/10 dark:hover:bg-purple-500/20 group transition-colors duration-150"
+                        className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-700 hover:bg-zinc-600 group transition-colors duration-150"
                       >
-                        <div className="i-ph:arrow-left mobile-icon-md text-gray-500 dark:text-gray-400 group-hover:text-purple-500 transition-colors" />
+                        <div className="i-ph:arrow-left w-4 h-4 md:w-5 md:h-5 text-zinc-300 group-hover:text-white transition-colors" />
                       </button>
                     )}
-                    <DialogTitle className="mobile-text-xl font-semibold text-gray-900 dark:text-white">
+                    <DialogTitle className="text-lg md:text-xl font-semibold text-white flex items-center gap-2">
                       {showTabManagement ? 'Tab Management' : activeTab ? TAB_LABELS[activeTab] : 'Control Panel'}
                     </DialogTitle>
                   </div>
 
-                  <div className="flex items-center mobile-gap-lg">
+                  <div className="flex items-center gap-4 md:gap-6">
                     {/* Avatar and Dropdown */}
-                    <div className="pl-2 sm:pl-6">
+                    <div className="pl-2 md:pl-6">
                       <AvatarDropdown onSelectTab={handleTabClick} />
                     </div>
 
                     {/* Close Button */}
                     <button
                       onClick={handleClose}
-                      className="flex items-center justify-center mobile-btn-icon rounded-full bg-transparent hover:bg-purple-500/10 dark:hover:bg-purple-500/20 group transition-all duration-200"
+                      className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-700 hover:bg-red-600 group transition-all duration-200"
                     >
-                      <div className="i-ph:x mobile-icon-md text-gray-500 dark:text-gray-400 group-hover:text-purple-500 transition-colors" />
+                      <div className="i-ph:x w-4 h-4 md:w-5 md:h-5 text-zinc-300 group-hover:text-white transition-colors" />
                     </button>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div
-                  className={classNames(
-                    'flex-1',
-                    'overflow-y-auto',
-                    'hover:overflow-y-auto',
-                    'scrollbar scrollbar-w-2',
-                    'scrollbar-track-transparent',
-                    'scrollbar-thumb-[#E5E5E5] hover:scrollbar-thumb-[#CCCCCC]',
-                    'dark:scrollbar-thumb-[#333333] dark:hover:scrollbar-thumb-[#444444]',
-                    'will-change-scroll',
-                    'touch-auto',
-                  )}
-                >
-                  <div
-                    className={classNames(
-                      'mobile-p-lg transition-opacity duration-150',
-                      activeTab || showTabManagement ? 'opacity-100' : 'opacity-100',
-                    )}
-                  >
+                <div className="flex-1 overflow-y-auto">
+                  <div className="p-4 md:p-6 transition-opacity duration-150">
                     {activeTab ? (
-                      getTabComponent(activeTab)
+                      <div className="max-w-4xl mx-auto">
+                        {getTabComponent(activeTab)}
+                      </div>
                     ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mobile-gap-md relative">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-6xl mx-auto">
                         {visibleTabs.map((tab, index) => (
                           <div
                             key={tab.id}
                             className={classNames(
-                              'aspect-[1.5/1] transition-transform duration-100 ease-out',
-                              'hover:scale-[1.01]',
+                              'aspect-[1.2/1] transition-transform duration-100 ease-out',
+                              'hover:scale-105',
                             )}
                             style={{
-                              animationDelay: `${index * 30}ms`,
-                              animation: open ? 'fadeInUp 200ms ease-out forwards' : 'none',
+                              animationDelay: `${index * 50}ms`,
+                              animation: open ? 'fadeInUp 300ms ease-out forwards' : 'none',
                             }}
                           >
-                            <TabTile
-                              tab={tab}
+                            <div
                               onClick={() => handleTabClick(tab.id as TabType)}
-                              isActive={activeTab === tab.id}
-                              hasUpdate={getTabUpdateStatus(tab.id)}
-                              statusMessage={getStatusMessage(tab.id)}
-                              description={TAB_DESCRIPTIONS[tab.id]}
-                              isLoading={loadingTab === tab.id}
-                              className="h-full relative"
+                              className="h-full bg-zinc-800 hover:bg-zinc-700 rounded-2xl shadow-md p-4 md:p-6 cursor-pointer transition-all duration-200 relative border border-zinc-700 hover:border-purple-500/50 group"
                             >
                               {BETA_TABS.has(tab.id) && <BetaLabel />}
-                            </TabTile>
+                              
+                              <div className="flex flex-col h-full">
+                                {/* Tab Icon */}
+                                <div className="flex-shrink-0 mb-3 md:mb-4">
+                                  <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-500/20 rounded-xl flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+                                    <div className="w-5 h-5 md:w-6 md:h-6 text-purple-400 group-hover:text-purple-300" />
+                                  </div>
+                                </div>
+                                
+                                {/* Tab Title */}
+                                <h3 className="text-sm md:text-base font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                                  {TAB_LABELS[tab.id]}
+                                </h3>
+                                
+                                {/* Tab Description */}
+                                <p className="text-xs md:text-sm text-zinc-400 line-clamp-2 flex-1 group-hover:text-zinc-300 transition-colors">
+                                  {TAB_DESCRIPTIONS[tab.id]}
+                                </p>
+                                
+                                {/* Status Indicator */}
+                                {getTabUpdateStatus(tab.id) && (
+                                  <div className="mt-3 flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                    <span className="text-xs text-green-400 font-medium">
+                                      {getStatusMessage(tab.id)}
+                                    </span>
+                                  </div>
+                                )}
+                                
+                                {/* Loading State */}
+                                {loadingTab === tab.id && (
+                                  <div className="absolute inset-0 bg-zinc-800/80 rounded-2xl flex items-center justify-center">
+                                    <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         ))}
                       </div>

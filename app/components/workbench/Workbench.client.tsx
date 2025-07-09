@@ -154,10 +154,10 @@ const FileModifiedDropdown = memo(
         <Popover className="relative">
           {({ open }: { open: boolean }) => (
             <>
-              <Popover.Button className="flex items-center mobile-gap-md mobile-btn-default rounded-lg bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3 transition-colors text-bolt-elements-item-contentDefault">
-                <span className="mobile-text-sm">File Changes</span>
+              <Popover.Button className="flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors text-zinc-300 hover:text-white border border-zinc-600 hover:border-purple-500/50">
+                <span className="text-sm font-medium">File Changes</span>
                 {hasChanges && (
-                  <span className="mobile-btn-icon rounded-full bg-accent-500/20 text-accent-500 mobile-text-xs flex items-center justify-center border border-accent-500/30">
+                  <span className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-xs flex items-center justify-center border border-purple-500/30 font-semibold">
                     {stats.totalFiles}
                   </span>
                 )}
@@ -171,30 +171,30 @@ const FileModifiedDropdown = memo(
                 leaveFrom="transform scale-100 opacity-100"
                 leaveTo="transform scale-95 opacity-0"
               >
-                <Popover.Panel className="absolute right-0 z-20 mt-2 w-80 sm:w-96 origin-top-right rounded-xl bg-bolt-elements-background-depth-2 shadow-xl border border-bolt-elements-borderColor">
-                  <div className="mobile-p-md">
+                <Popover.Panel className="absolute right-0 z-20 mt-2 w-80 sm:w-96 origin-top-right rounded-xl bg-zinc-900 shadow-xl border border-zinc-700">
+                  <div className="p-4">
                     {/* Search and Sort Controls */}
-                    <div className="flex flex-col mobile-gap-md mb-3">
+                    <div className="flex flex-col gap-3 mb-3">
                       <div className="relative">
                         <input
                           type="text"
                           placeholder="Search files..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="w-full mobile-input mobile-text-sm rounded-lg bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor focus:outline-none focus:ring-2 focus:ring-blue-500/50 pl-8"
+                          className="w-full h-9 px-3 py-2 text-sm rounded-lg bg-zinc-800 border border-zinc-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 pl-8 text-white placeholder:text-zinc-400"
                         />
-                        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-bolt-elements-textTertiary">
-                          <div className="i-ph:magnifying-glass mobile-icon-sm" />
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-zinc-400">
+                          <div className="i-ph:magnifying-glass w-4 h-4" />
                         </div>
                       </div>
                       
                       {/* Sort Options */}
-                      <div className="flex items-center mobile-gap-md">
-                        <span className="mobile-text-xs text-bolt-elements-textTertiary">Sort by:</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-zinc-400">Sort by:</span>
                         <select
                           value={sortBy}
                           onChange={(e) => setSortBy(e.target.value as 'name' | 'modified' | 'size')}
-                          className="mobile-text-xs bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor rounded px-2 py-1 text-bolt-elements-textPrimary"
+                          className="text-xs bg-zinc-800 border border-zinc-600 rounded px-2 py-1 text-white focus:ring-2 focus:ring-purple-500/50"
                         >
                           <option value="modified">Modified</option>
                           <option value="name">Name</option>
@@ -204,18 +204,18 @@ const FileModifiedDropdown = memo(
                     </div>
 
                     {/* Stats Summary */}
-                    <div className="flex items-center justify-between mobile-p-sm bg-bolt-elements-background-depth-1 rounded-lg mb-3">
-                      <span className="mobile-text-xs text-bolt-elements-textSecondary">
+                    <div className="flex items-center justify-between p-3 bg-zinc-800 rounded-lg mb-3">
+                      <span className="text-xs text-zinc-300">
                         {stats.totalFiles} files modified
                       </span>
-                      <div className="flex items-center mobile-gap-sm mobile-text-xs">
-                        <span className="text-green-500">+{stats.totalChanges}</span>
-                        <span className="text-red-500">-{Math.floor(stats.totalChanges * 0.3)}</span>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-green-400">+{stats.totalChanges}</span>
+                        <span className="text-red-400">-{Math.floor(stats.totalChanges * 0.3)}</span>
                       </div>
                     </div>
 
                     {/* File List */}
-                    <div className="max-h-60 overflow-y-auto">
+                    <div className="max-h-60 overflow-y-auto space-y-1">
                       {filteredAndSortedFiles.length > 0 ? (
                         filteredAndSortedFiles.map(([filePath, history]) => {
                           const extension = filePath.split('.').pop() || '';
@@ -226,10 +226,10 @@ const FileModifiedDropdown = memo(
                             <button
                               key={filePath}
                               onClick={() => onSelectFile(filePath)}
-                              className="w-full mobile-p-md text-left rounded-md hover:bg-bolt-elements-background-depth-1 transition-colors group bg-transparent"
+                              className="w-full p-3 text-left rounded-md hover:bg-zinc-800 transition-colors group bg-transparent border border-transparent hover:border-zinc-600"
                             >
-                              <div className="flex items-center mobile-gap-md">
-                                <div className="shrink-0 mobile-icon-md text-bolt-elements-textTertiary">
+                              <div className="flex items-center gap-3">
+                                <div className="shrink-0 w-4 h-4 text-zinc-400">
                                   {/* File type icons */}
                                   {(['typescript', 'javascript', 'jsx', 'tsx'].includes(language)) && <div className="i-ph:file-js" />}
                                   {(['css', 'scss', 'less'].includes(language)) && <div className="i-ph:paint-brush" />}
@@ -244,12 +244,12 @@ const FileModifiedDropdown = memo(
                                   {!(['typescript', 'javascript', 'css', 'html', 'json', 'python', 'markdown', 'yaml', 'yml', 'sql', 'dockerfile', 'shell', 'jsx', 'tsx', 'scss', 'less'].includes(language)) && <div className="i-ph:file-text" />}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between mobile-gap-md">
+                                  <div className="flex items-center justify-between gap-3">
                                     <div className="flex flex-col min-w-0">
-                                      <span className="truncate mobile-text-sm font-medium text-bolt-elements-textPrimary">
+                                      <span className="truncate text-sm font-medium text-white">
                                         {filePath.split('/').pop()}
                                       </span>
-                                      <div className="flex items-center mobile-gap-md mobile-text-xs text-bolt-elements-textTertiary">
+                                      <div className="flex items-center gap-2 text-xs text-zinc-400">
                                         <span className="truncate">{filePath}</span>
                                         <span>•</span>
                                         <span>{lastModified.toLocaleTimeString()}</span>
@@ -299,9 +299,9 @@ const FileModifiedDropdown = memo(
 
                                       return (
                                         showStats && (
-                                          <div className="flex items-center mobile-gap-sm mobile-text-xs shrink-0">
-                                            {additions > 0 && <span className="text-green-500">+{additions}</span>}
-                                            {deletions > 0 && <span className="text-red-500">-{deletions}</span>}
+                                          <div className="flex items-center gap-2 text-xs shrink-0">
+                                            {additions > 0 && <span className="text-green-400">+{additions}</span>}
+                                            {deletions > 0 && <span className="text-red-400">-{deletions}</span>}
                                           </div>
                                         )
                                       );
@@ -313,14 +313,14 @@ const FileModifiedDropdown = memo(
                           );
                         })
                       ) : (
-                        <div className="flex flex-col items-center justify-center mobile-p-lg text-center">
-                          <div className="mobile-icon-xl mb-2 text-bolt-elements-textTertiary">
+                        <div className="flex flex-col items-center justify-center p-8 text-center">
+                          <div className="w-12 h-12 mb-2 text-zinc-400">
                             <div className="i-ph:file-dashed" />
                           </div>
-                          <p className="mobile-text-sm font-medium text-bolt-elements-textPrimary">
+                          <p className="text-sm font-medium text-white">
                             {searchQuery ? 'No matching files' : 'No modified files'}
                           </p>
-                          <p className="mobile-text-xs text-bolt-elements-textTertiary mt-1">
+                          <p className="text-xs text-zinc-400 mt-1">
                             {searchQuery ? 'Try another search' : 'Changes will appear here as you edit'}
                           </p>
                         </div>
@@ -329,16 +329,16 @@ const FileModifiedDropdown = memo(
                   </div>
 
                   {hasChanges && (
-                    <div className="border-t border-bolt-elements-borderColor mobile-p-md">
-                      <div className="flex mobile-gap-md">
+                    <div className="border-t border-zinc-700 p-4">
+                      <div className="flex gap-3">
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(filteredAndSortedFiles.map(([filePath]) => filePath).join('\n'));
                             toast('File list copied to clipboard', {
-                              icon: <div className="i-ph:check-circle text-accent-500" />,
+                              icon: <div className="i-ph:check-circle text-purple-500" />,
                             });
                           }}
-                          className="flex-1 flex items-center justify-center mobile-gap-md mobile-btn-sm rounded-lg bg-bolt-elements-background-depth-1 hover:bg-bolt-elements-background-depth-3 transition-colors text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary"
+                          className="flex-1 flex items-center justify-center gap-2 h-8 px-3 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 transition-colors text-zinc-300 hover:text-white border border-zinc-600"
                         >
                           <div className="i-ph:copy" />
                           Copy List
@@ -358,7 +358,7 @@ const FileModifiedDropdown = memo(
                             a.click();
                             URL.revokeObjectURL(url);
                           }}
-                          className="flex-1 flex items-center justify-center mobile-gap-md mobile-btn-sm rounded-lg bg-accent-500 text-white hover:bg-accent-600 transition-colors"
+                          className="flex-1 flex items-center justify-center gap-2 h-8 px-3 text-xs rounded-lg bg-purple-500 text-white hover:bg-purple-600 transition-colors"
                         >
                           <div className="i-ph:download" />
                           Export
