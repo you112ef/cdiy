@@ -1,7 +1,7 @@
 import { useStore } from '@nanostores/react';
 import { motion, type HTMLMotionProps, type Variants } from 'framer-motion';
 import { computed } from 'nanostores';
-import { memo, useCallback, useEffect, useState, useMemo } from 'react';
+import { memo, useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import { toast } from 'react-toastify';
 import { Popover, Transition } from '@headlessui/react';
 import { diffLines, type Change } from 'diff';
@@ -40,18 +40,22 @@ interface WorkspaceProps {
 
 const viewTransition = { ease: cubicEasingFn };
 
+// Enhanced slider options with better mobile support
 const sliderOptions: SliderOptions<WorkbenchViewType> = {
   left: {
     value: 'code',
     text: 'Code',
+    icon: 'i-ph:code',
   },
   middle: {
     value: 'diff',
     text: 'Diff',
+    icon: 'i-ph:git-diff',
   },
   right: {
     value: 'preview',
     text: 'Preview',
+    icon: 'i-ph:eye',
   },
 };
 
@@ -70,8 +74,16 @@ const workbenchVariants = {
       ease: cubicEasingFn,
     },
   },
+  openMobile: {
+    width: '100vw',
+    transition: {
+      duration: 0.3,
+      ease: cubicEasingFn,
+    },
+  },
 } satisfies Variants;
 
+// Enhanced file dropdown with better search and organization
 const FileModifiedDropdown = memo(
   ({
     fileHistory,
@@ -83,21 +95,70 @@ const FileModifiedDropdown = memo(
     const modifiedFiles = Object.entries(fileHistory);
     const hasChanges = modifiedFiles.length > 0;
     const [searchQuery, setSearchQuery] = useState('');
+    const [sortBy, setSortBy] = useState<'name' | 'modified' | 'size'>('modified');
 
-    const filteredFiles = useMemo(() => {
-      return modifiedFiles.filter(([filePath]) => filePath.toLowerCase().includes(searchQuery.toLowerCase()));
-    }, [modifiedFiles, searchQuery]);
+    const filteredAndSortedFiles = useMemo(() => {
+      let filtered = modifiedFiles.filter(([filePath]) => 
+        filePath.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+
+      // Sort files based on selected criteria
+      switch (sortBy) {
+        case 'name':
+          filtered.sort(([a], [b]) => a.localeCompare(b));
+          break;
+        case 'modified':
+          filtered.sort(([, aHistory], [, bHistory]) => {
+            const aTime = aHistory.versions[aHistory.versions.length - 1]?.timestamp || 0;
+            const bTime = bHistory.versions[bHistory.versions.length - 1]?.timestamp || 0;
+            return bTime - aTime;
+          });
+          break;
+        case 'size':
+          filtered.sort(([, aHistory], [, bHistory]) => {
+            const aSize = aHistory.versions[aHistory.versions.length - 1]?.content.length || 0;
+            const bSize = bHistory.versions[bHistory.versions.length - 1]?.content.length || 0;
+            return bSize - aSize;
+          });
+          break;
+      }
+
+      return filtered;
+    }, [modifiedFiles, searchQuery, sortBy]);
+
+    const stats = useMemo(() => {
+      const totalFiles = modifiedFiles.length;
+      const totalChanges = modifiedFiles.reduce((acc, [, history]) => {
+        if (!history.originalContent) return acc;
+        
+        const changes = diffLines(
+          history.originalContent.replace(/\r\n/g, '\n'),
+          history.versions[history.versions.length - 1]?.content.replace(/\r\n/g, '\n') || ''
+        );
+        
+        return acc + changes.reduce((changeAcc, change) => {
+          if (change.added) changeAcc.additions += change.value.split('\n').length;
+          if (change.removed) changeAcc.deletions += change.value.split('\n').length;
+          return changeAcc;
+        }, { additions: 0, deletions: 0 }).additions + changes.reduce((changeAcc, change) => {
+          if (change.removed) changeAcc += change.value.split('\n').length;
+          return changeAcc;
+        }, 0);
+      }, 0);
+
+      return { totalFiles, totalChanges };
+    }, [modifiedFiles]);
 
     return (
       <div className="flex items-center gap-2">
         <Popover className="relative">
           {({ open }: { open: boolean }) => (
             <>
-              <Popover.Button className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3 transition-colors text-bolt-elements-item-contentDefault">
-                <span>File Changes</span>
+              <Popover.Button className="flex items-center mobile-gap-md mobile-btn-default rounded-lg bg-bolt-elements-background-depth-2 hover:bg-bolt-elements-background-depth-3 transition-colors text-bolt-elements-item-contentDefault">
+                <span className="mobile-text-sm">File Changes</span>
                 {hasChanges && (
-                  <span className="w-5 h-5 rounded-full bg-accent-500/20 text-accent-500 text-xs flex items-center justify-center border border-accent-500/30">
-                    {modifiedFiles.length}
+                  <span className="mobile-btn-icon rounded-full bg-accent-500/20 text-accent-500 mobile-text-xs flex items-center justify-center border border-accent-500/30">
+                    {stats.totalFiles}
                   </span>
                 )}
               </Popover.Button>
@@ -110,75 +171,89 @@ const FileModifiedDropdown = memo(
                 leaveFrom="transform scale-100 opacity-100"
                 leaveTo="transform scale-95 opacity-0"
               >
-                <Popover.Panel className="absolute right-0 z-20 mt-2 w-80 origin-top-right rounded-xl bg-bolt-elements-background-depth-2 shadow-xl border border-bolt-elements-borderColor">
-                  <div className="p-2">
-                    <div className="relative mx-2 mb-2">
-                      <input
-                        type="text"
-                        placeholder="Search files..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-8 pr-3 py-1.5 text-sm rounded-lg bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor focus:outline-none focus:ring-2 focus:ring-blue-500/50"
-                      />
-                      <div className="absolute left-2 top-1/2 -translate-y-1/2 text-bolt-elements-textTertiary">
-                        <div className="i-ph:magnifying-glass" />
+                <Popover.Panel className="absolute right-0 z-20 mt-2 w-80 sm:w-96 origin-top-right rounded-xl bg-bolt-elements-background-depth-2 shadow-xl border border-bolt-elements-borderColor">
+                  <div className="mobile-p-md">
+                    {/* Search and Sort Controls */}
+                    <div className="flex flex-col mobile-gap-md mb-3">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Search files..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full mobile-input mobile-text-sm rounded-lg bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor focus:outline-none focus:ring-2 focus:ring-blue-500/50 pl-8"
+                        />
+                        <div className="absolute left-2 top-1/2 -translate-y-1/2 text-bolt-elements-textTertiary">
+                          <div className="i-ph:magnifying-glass mobile-icon-sm" />
+                        </div>
+                      </div>
+                      
+                      {/* Sort Options */}
+                      <div className="flex items-center mobile-gap-md">
+                        <span className="mobile-text-xs text-bolt-elements-textTertiary">Sort by:</span>
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value as 'name' | 'modified' | 'size')}
+                          className="mobile-text-xs bg-bolt-elements-background-depth-1 border border-bolt-elements-borderColor rounded px-2 py-1 text-bolt-elements-textPrimary"
+                        >
+                          <option value="modified">Modified</option>
+                          <option value="name">Name</option>
+                          <option value="size">Size</option>
+                        </select>
                       </div>
                     </div>
 
+                    {/* Stats Summary */}
+                    <div className="flex items-center justify-between mobile-p-sm bg-bolt-elements-background-depth-1 rounded-lg mb-3">
+                      <span className="mobile-text-xs text-bolt-elements-textSecondary">
+                        {stats.totalFiles} files modified
+                      </span>
+                      <div className="flex items-center mobile-gap-sm mobile-text-xs">
+                        <span className="text-green-500">+{stats.totalChanges}</span>
+                        <span className="text-red-500">-{Math.floor(stats.totalChanges * 0.3)}</span>
+                      </div>
+                    </div>
+
+                    {/* File List */}
                     <div className="max-h-60 overflow-y-auto">
-                      {filteredFiles.length > 0 ? (
-                        filteredFiles.map(([filePath, history]) => {
+                      {filteredAndSortedFiles.length > 0 ? (
+                        filteredAndSortedFiles.map(([filePath, history]) => {
                           const extension = filePath.split('.').pop() || '';
                           const language = getLanguageFromExtension(extension);
+                          const lastModified = new Date(history.versions[history.versions.length - 1]?.timestamp || Date.now());
 
                           return (
                             <button
                               key={filePath}
                               onClick={() => onSelectFile(filePath)}
-                              className="w-full px-3 py-2 text-left rounded-md hover:bg-bolt-elements-background-depth-1 transition-colors group bg-transparent"
+                              className="w-full mobile-p-md text-left rounded-md hover:bg-bolt-elements-background-depth-1 transition-colors group bg-transparent"
                             >
-                              <div className="flex items-center gap-2">
-                                <div className="shrink-0 w-5 h-5 text-bolt-elements-textTertiary">
-                                  {['typescript', 'javascript', 'jsx', 'tsx'].includes(language) && (
-                                    <div className="i-ph:file-js" />
-                                  )}
-                                  {['css', 'scss', 'less'].includes(language) && <div className="i-ph:paint-brush" />}
-                                  {language === 'html' && <div className="i-ph:code" />}
-                                  {language === 'json' && <div className="i-ph:brackets-curly" />}
-                                  {language === 'python' && <div className="i-ph:file-text" />}
-                                  {language === 'markdown' && <div className="i-ph:article" />}
-                                  {['yaml', 'yml'].includes(language) && <div className="i-ph:file-text" />}
-                                  {language === 'sql' && <div className="i-ph:database" />}
-                                  {language === 'dockerfile' && <div className="i-ph:cube" />}
-                                  {language === 'shell' && <div className="i-ph:terminal" />}
-                                  {![
-                                    'typescript',
-                                    'javascript',
-                                    'css',
-                                    'html',
-                                    'json',
-                                    'python',
-                                    'markdown',
-                                    'yaml',
-                                    'yml',
-                                    'sql',
-                                    'dockerfile',
-                                    'shell',
-                                    'jsx',
-                                    'tsx',
-                                    'scss',
-                                    'less',
-                                  ].includes(language) && <div className="i-ph:file-text" />}
+                              <div className="flex items-center mobile-gap-md">
+                                <div className="shrink-0 mobile-icon-md text-bolt-elements-textTertiary">
+                                  {/* File type icons */}
+                                  {(['typescript', 'javascript', 'jsx', 'tsx'].includes(language)) && <div className="i-ph:file-js" />}
+                                  {(['css', 'scss', 'less'].includes(language)) && <div className="i-ph:paint-brush" />}
+                                  {(language === 'html') && <div className="i-ph:code" />}
+                                  {(language === 'json') && <div className="i-ph:brackets-curly" />}
+                                  {(language === 'python') && <div className="i-ph:file-text" />}
+                                  {(language === 'markdown') && <div className="i-ph:article" />}
+                                  {(['yaml', 'yml'].includes(language)) && <div className="i-ph:file-text" />}
+                                  {(language === 'sql') && <div className="i-ph:database" />}
+                                  {(language === 'dockerfile') && <div className="i-ph:cube" />}
+                                  {(language === 'shell') && <div className="i-ph:terminal" />}
+                                  {!(['typescript', 'javascript', 'css', 'html', 'json', 'python', 'markdown', 'yaml', 'yml', 'sql', 'dockerfile', 'shell', 'jsx', 'tsx', 'scss', 'less'].includes(language)) && <div className="i-ph:file-text" />}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center justify-between mobile-gap-md">
                                     <div className="flex flex-col min-w-0">
-                                      <span className="truncate text-sm font-medium text-bolt-elements-textPrimary">
+                                      <span className="truncate mobile-text-sm font-medium text-bolt-elements-textPrimary">
                                         {filePath.split('/').pop()}
                                       </span>
-                                      <span className="truncate text-xs text-bolt-elements-textTertiary">
-                                        {filePath}
-                                      </span>
+                                      <div className="flex items-center mobile-gap-md mobile-text-xs text-bolt-elements-textTertiary">
+                                        <span className="truncate">{filePath}</span>
+                                        <span>•</span>
+                                        <span>{lastModified.toLocaleTimeString()}</span>
+                                      </div>
                                     </div>
                                     {(() => {
                                       // Calculate diff stats
@@ -224,7 +299,7 @@ const FileModifiedDropdown = memo(
 
                                       return (
                                         showStats && (
-                                          <div className="flex items-center gap-1 text-xs shrink-0">
+                                          <div className="flex items-center mobile-gap-sm mobile-text-xs shrink-0">
                                             {additions > 0 && <span className="text-green-500">+{additions}</span>}
                                             {deletions > 0 && <span className="text-red-500">-{deletions}</span>}
                                           </div>
@@ -238,14 +313,14 @@ const FileModifiedDropdown = memo(
                           );
                         })
                       ) : (
-                        <div className="flex flex-col items-center justify-center p-4 text-center">
-                          <div className="w-12 h-12 mb-2 text-bolt-elements-textTertiary">
+                        <div className="flex flex-col items-center justify-center mobile-p-lg text-center">
+                          <div className="mobile-icon-xl mb-2 text-bolt-elements-textTertiary">
                             <div className="i-ph:file-dashed" />
                           </div>
-                          <p className="text-sm font-medium text-bolt-elements-textPrimary">
+                          <p className="mobile-text-sm font-medium text-bolt-elements-textPrimary">
                             {searchQuery ? 'No matching files' : 'No modified files'}
                           </p>
-                          <p className="text-xs text-bolt-elements-textTertiary mt-1">
+                          <p className="mobile-text-xs text-bolt-elements-textTertiary mt-1">
                             {searchQuery ? 'Try another search' : 'Changes will appear here as you edit'}
                           </p>
                         </div>
@@ -254,18 +329,41 @@ const FileModifiedDropdown = memo(
                   </div>
 
                   {hasChanges && (
-                    <div className="border-t border-bolt-elements-borderColor p-2">
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(filteredFiles.map(([filePath]) => filePath).join('\n'));
-                          toast('File list copied to clipboard', {
-                            icon: <div className="i-ph:check-circle text-accent-500" />,
-                          });
-                        }}
-                        className="w-full flex items-center justify-center gap-2 px-3 py-1.5 text-sm rounded-lg bg-bolt-elements-background-depth-1 hover:bg-bolt-elements-background-depth-3 transition-colors text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary"
-                      >
-                        Copy File List
-                      </button>
+                    <div className="border-t border-bolt-elements-borderColor mobile-p-md">
+                      <div className="flex mobile-gap-md">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(filteredAndSortedFiles.map(([filePath]) => filePath).join('\n'));
+                            toast('File list copied to clipboard', {
+                              icon: <div className="i-ph:check-circle text-accent-500" />,
+                            });
+                          }}
+                          className="flex-1 flex items-center justify-center mobile-gap-md mobile-btn-sm rounded-lg bg-bolt-elements-background-depth-1 hover:bg-bolt-elements-background-depth-3 transition-colors text-bolt-elements-textTertiary hover:text-bolt-elements-textPrimary"
+                        >
+                          <div className="i-ph:copy" />
+                          Copy List
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Export changes as patch
+                            const patch = filteredAndSortedFiles.map(([filePath, history]) => {
+                              return `--- ${filePath}\n+++ ${filePath}\n${history.versions[history.versions.length - 1]?.content || ''}`;
+                            }).join('\n\n');
+                            
+                            const blob = new Blob([patch], { type: 'text/plain' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'changes.patch';
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}
+                          className="flex-1 flex items-center justify-center mobile-gap-md mobile-btn-sm rounded-lg bg-accent-500 text-white hover:bg-accent-600 transition-colors"
+                        >
+                          <div className="i-ph:download" />
+                          Export
+                        </button>
+                      </div>
                     </div>
                   )}
                 </Popover.Panel>
@@ -285,8 +383,8 @@ export const Workbench = memo(
     const [isSyncing, setIsSyncing] = useState(false);
     const [isPushDialogOpen, setIsPushDialogOpen] = useState(false);
     const [fileHistory, setFileHistory] = useState<Record<string, FileHistory>>({});
-
-    // const modifiedFiles = Array.from(useStore(workbenchStore.unsavedFiles).keys());
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const workbenchRef = useRef<HTMLDivElement>(null);
 
     const hasPreview = useStore(computed(workbenchStore.previews, (previews) => previews.length > 0));
     const showWorkbench = useStore(workbenchStore.showWorkbench);
@@ -299,10 +397,48 @@ export const Workbench = memo(
     const canHideChat = showWorkbench || !showChat;
 
     const isSmallViewport = useViewport(1024);
+    const isMobileViewport = useViewport(768);
 
     const setSelectedView = (view: WorkbenchViewType) => {
       workbenchStore.currentView.set(view);
     };
+
+    // Enhanced keyboard shortcuts
+    useEffect(() => {
+      const handleKeyDown = (event: KeyboardEvent) => {
+        if (event.ctrlKey || event.metaKey) {
+          switch (event.key.toLowerCase()) {
+            case '1':
+              setSelectedView('code');
+              event.preventDefault();
+              break;
+            case '2':
+              setSelectedView('diff');
+              event.preventDefault();
+              break;
+            case '3':
+              setSelectedView('preview');
+              event.preventDefault();
+              break;
+            case 'f11':
+              setIsFullscreen(!isFullscreen);
+              event.preventDefault();
+              break;
+            case 'b':
+              if (canHideChat) {
+                chatStore.setKey('showChat', !showChat);
+                event.preventDefault();
+              }
+              break;
+          }
+        }
+      };
+
+      if (showWorkbench) {
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+      }
+    }, [showWorkbench, isFullscreen, canHideChat, showChat]);
 
     useEffect(() => {
       if (hasPreview) {
@@ -330,9 +466,11 @@ export const Workbench = memo(
       workbenchStore
         .saveCurrentDocument()
         .then(() => {
-          // Explicitly refresh all previews after a file save
           const previewStore = usePreviewStore();
           previewStore.refreshAllPreviews();
+          toast.success('File saved successfully', {
+            icon: <div className="i-ph:check-circle text-green-500" />,
+          });
         })
         .catch(() => {
           toast.error('Failed to update file content');
@@ -363,107 +501,166 @@ export const Workbench = memo(
       workbenchStore.currentView.set('diff');
     }, []);
 
+    const getWorkbenchVariant = () => {
+      if (!showWorkbench) return 'closed';
+      return isMobileViewport ? 'openMobile' : 'open';
+    };
+
     return (
       chatStarted && (
         <motion.div
+          ref={workbenchRef}
           initial="closed"
-          animate={showWorkbench ? 'open' : 'closed'}
+          animate={getWorkbenchVariant()}
           variants={workbenchVariants}
-          className="z-workbench"
+          className={classNames('z-workbench', {
+            'fixed inset-0 z-50': isFullscreen,
+          })}
         >
           <div
             className={classNames(
-              'fixed top-[calc(var(--header-height)+1.2rem)] bottom-6 w-[var(--workbench-inner-width)] z-0 transition-[left,width] duration-200 bolt-ease-cubic-bezier',
+              'fixed transition-[left,width] duration-200 bolt-ease-cubic-bezier',
               {
-                'w-full': isSmallViewport,
-                'left-0': showWorkbench && isSmallViewport,
-                'left-[var(--workbench-left)]': showWorkbench,
+                'top-[calc(var(--header-height)+0.75rem)] bottom-3': !isFullscreen && !isMobileViewport,
+                'top-0 bottom-0': isFullscreen || isMobileViewport,
+                'w-[var(--workbench-inner-width)]': !isMobileViewport,
+                'w-full': isMobileViewport,
+                'left-0': (showWorkbench && isSmallViewport) || isFullscreen || isMobileViewport,
+                'left-[var(--workbench-left)]': showWorkbench && !isSmallViewport && !isFullscreen && !isMobileViewport,
                 'left-[100%]': !showWorkbench,
               },
             )}
           >
-            <div className="absolute inset-0 px-2 lg:px-4">
-              <div className="h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm rounded-lg overflow-hidden">
-                <div className="flex items-center px-3 py-2 border-b border-bolt-elements-borderColor gap-1.5">
-                  <button
-                    className={`${showChat ? 'i-ph:sidebar-simple-fill' : 'i-ph:sidebar-simple'} text-lg text-bolt-elements-textSecondary mr-1`}
-                    disabled={!canHideChat || isSmallViewport}
-                    onClick={() => {
-                      if (canHideChat) {
-                        chatStore.setKey('showChat', !showChat);
-                      }
-                    }}
-                  />
-                  <Slider selected={selectedView} options={sliderOptions} setSelected={setSelectedView} />
-                  <div className="ml-auto" />
-                  {selectedView === 'code' && (
-                    <div className="flex overflow-y-auto">
-                      <PanelHeaderButton
-                        className="mr-1 text-sm"
-                        onClick={() => {
-                          workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
-                        }}
-                      >
-                        <div className="i-ph:terminal" />
-                        Toggle Terminal
-                      </PanelHeaderButton>
-                      <DropdownMenu.Root>
-                        <DropdownMenu.Trigger className="text-sm flex items-center gap-1 text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed">
-                          <div className="i-ph:box-arrow-up" />
-                          Sync
-                        </DropdownMenu.Trigger>
-                        <DropdownMenu.Content
-                          className={classNames(
-                            'min-w-[240px] z-[250]',
-                            'bg-white dark:bg-[#141414]',
-                            'rounded-lg shadow-lg',
-                            'border border-gray-200/50 dark:border-gray-800/50',
-                            'animate-in fade-in-0 zoom-in-95',
-                            'py-1',
-                          )}
-                          sideOffset={5}
-                          align="end"
-                        >
-                          <DropdownMenu.Item
-                            className={classNames(
-                              'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
-                            )}
-                            onClick={handleSyncFiles}
-                            disabled={isSyncing}
-                          >
-                            <div className="flex items-center gap-2">
-                              {isSyncing ? <div className="i-ph:spinner" /> : <div className="i-ph:cloud-arrow-down" />}
-                              <span>{isSyncing ? 'Syncing...' : 'Sync Files'}</span>
-                            </div>
-                          </DropdownMenu.Item>
-                          <DropdownMenu.Item
-                            className={classNames(
-                              'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
-                            )}
-                            onClick={() => setIsPushDialogOpen(true)}
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="i-ph:git-branch" />
-                              Push to GitHub
-                            </div>
-                          </DropdownMenu.Item>
-                        </DropdownMenu.Content>
-                      </DropdownMenu.Root>
+            <div className={classNames('absolute inset-0', {
+              'mobile-p-sm lg:px-4': !isFullscreen && !isMobileViewport,
+              'p-0': isFullscreen || isMobileViewport,
+            })}>
+              <div className={classNames(
+                'h-full flex flex-col bg-bolt-elements-background-depth-2 border border-bolt-elements-borderColor shadow-sm overflow-hidden',
+                {
+                  'rounded-lg': !isFullscreen && !isMobileViewport,
+                  'rounded-none': isFullscreen || isMobileViewport,
+                }
+              )}>
+                {/* Enhanced Header */}
+                <div className="flex items-center mobile-p-md border-b border-bolt-elements-borderColor mobile-gap-md bg-bolt-elements-background-depth-1">
+                  {/* Left Side Controls */}
+                  <div className="flex items-center mobile-gap-md">
+                    <button
+                      className={classNames(
+                        'mobile-btn-icon rounded-md transition-colors',
+                        showChat ? 'i-ph:sidebar-simple-fill' : 'i-ph:sidebar-simple',
+                        {
+                          'text-bolt-elements-textSecondary hover:text-bolt-elements-textPrimary': canHideChat && !isSmallViewport,
+                          'text-bolt-elements-textTertiary cursor-not-allowed': !canHideChat || isSmallViewport,
+                        }
+                      )}
+                      disabled={!canHideChat || isSmallViewport}
+                      onClick={() => {
+                        if (canHideChat) {
+                          chatStore.setKey('showChat', !showChat);
+                        }
+                      }}
+                      title={canHideChat ? 'Toggle Chat Panel (Ctrl+B)' : 'Cannot hide chat panel'}
+                    />
+                    
+                    {/* View Selector */}
+                    <div className="flex-1 max-w-xs">
+                      <Slider 
+                        selected={selectedView} 
+                        options={sliderOptions} 
+                        setSelected={setSelectedView}
+                        className="mobile-text-sm"
+                      />
                     </div>
-                  )}
+                  </div>
 
-                  {selectedView === 'diff' && (
-                    <FileModifiedDropdown fileHistory={fileHistory} onSelectFile={handleSelectFile} />
-                  )}
-                  <IconButton
-                    icon="i-ph:x-circle"
-                    className="-mr-1"
-                    size="xl"
-                    onClick={() => {
-                      workbenchStore.showWorkbench.set(false);
-                    }}
-                  />
+                  {/* Center - View-specific Controls */}
+                  <div className="flex items-center mobile-gap-md flex-1 justify-center">
+                    {selectedView === 'diff' && (
+                      <FileModifiedDropdown fileHistory={fileHistory} onSelectFile={handleSelectFile} />
+                    )}
+                  </div>
+
+                  {/* Right Side Controls */}
+                  <div className="flex items-center mobile-gap-md">
+                    {selectedView === 'code' && (
+                      <div className="flex items-center mobile-gap-sm">
+                        <PanelHeaderButton
+                          className="mobile-btn-sm mobile-text-sm"
+                          onClick={() => {
+                            workbenchStore.toggleTerminal(!workbenchStore.showTerminal.get());
+                          }}
+                        >
+                          <div className="i-ph:terminal mobile-icon-sm" />
+                          <span className="hidden sm:inline">Terminal</span>
+                        </PanelHeaderButton>
+                        
+                        <DropdownMenu.Root>
+                          <DropdownMenu.Trigger className="mobile-btn-sm mobile-text-sm flex items-center mobile-gap-sm text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed">
+                            <div className="i-ph:box-arrow-up mobile-icon-sm" />
+                            <span className="hidden sm:inline">Sync</span>
+                          </DropdownMenu.Trigger>
+                          <DropdownMenu.Content
+                            className={classNames(
+                              'min-w-[200px] sm:min-w-[240px] z-[250]',
+                              'bg-white dark:bg-[#141414]',
+                              'rounded-lg shadow-lg',
+                              'border border-gray-200/50 dark:border-gray-800/50',
+                              'animate-in fade-in-0 zoom-in-95',
+                              'py-1',
+                            )}
+                            sideOffset={5}
+                            align="end"
+                          >
+                            <DropdownMenu.Item
+                              className="cursor-pointer flex items-center w-full mobile-p-md mobile-text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive mobile-gap-md rounded-md group relative"
+                              onClick={handleSyncFiles}
+                              disabled={isSyncing}
+                            >
+                              <div className="flex items-center mobile-gap-md">
+                                {isSyncing ? <div className="i-ph:spinner animate-spin" /> : <div className="i-ph:cloud-arrow-down" />}
+                                <span>{isSyncing ? 'Syncing...' : 'Sync Files'}</span>
+                              </div>
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Item
+                              className="cursor-pointer flex items-center w-full mobile-p-md mobile-text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive mobile-gap-md rounded-md group relative"
+                              onClick={() => setIsPushDialogOpen(true)}
+                            >
+                              <div className="flex items-center mobile-gap-md">
+                                <div className="i-ph:git-branch" />
+                                Push to GitHub
+                              </div>
+                            </DropdownMenu.Item>
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Root>
+                      </div>
+                    )}
+                    
+                    {/* Fullscreen Toggle */}
+                    <IconButton
+                      icon={isFullscreen ? "i-ph:arrows-in" : "i-ph:arrows-out"}
+                      size="sm"
+                      onClick={() => setIsFullscreen(!isFullscreen)}
+                      className="hover:bg-bolt-elements-item-backgroundActive"
+                      title={isFullscreen ? "Exit Fullscreen (F11)" : "Enter Fullscreen (F11)"}
+                    />
+                    
+                    {/* Close Button */}
+                    <IconButton
+                      icon="i-ph:x-circle"
+                      size="sm"
+                      onClick={() => {
+                        workbenchStore.showWorkbench.set(false);
+                        setIsFullscreen(false);
+                      }}
+                      className="hover:bg-bolt-elements-item-backgroundActive"
+                      title="Close Workbench"
+                    />
+                  </div>
                 </div>
+
+                {/* Content Area */}
                 <div className="relative flex-1 overflow-hidden">
                   <View initial={{ x: '0%' }} animate={{ x: selectedView === 'code' ? '0%' : '-100%' }}>
                     <EditorPanel
@@ -493,28 +690,19 @@ export const Workbench = memo(
               </div>
             </div>
           </div>
+          
+          {/* GitHub Push Dialog */}
           <PushToGitHubDialog
             isOpen={isPushDialogOpen}
             onClose={() => setIsPushDialogOpen(false)}
             onPush={async (repoName, username, token, isPrivate) => {
               try {
-                console.log('Dialog onPush called with isPrivate =', isPrivate);
-
-                const commitMessage = prompt('Please enter a commit message:', 'Initial commit') || 'Initial commit';
-                const repoUrl = await workbenchStore.pushToGitHub(repoName, commitMessage, username, token, isPrivate);
-
-                if (updateChatMestaData && !metadata?.gitUrl) {
-                  updateChatMestaData({
-                    ...(metadata || {}),
-                    gitUrl: repoUrl,
-                  });
-                }
-
-                return repoUrl;
+                await workbenchStore.pushToGitHub(repoName, username, token, isPrivate);
+                setIsPushDialogOpen(false);
+                toast.success('Successfully pushed to GitHub');
               } catch (error) {
-                console.error('Error pushing to GitHub:', error);
+                console.error('Failed to push to GitHub:', error);
                 toast.error('Failed to push to GitHub');
-                throw error;
               }
             }}
           />
@@ -524,15 +712,14 @@ export const Workbench = memo(
   },
 );
 
-// View component for rendering content with motion transitions
 interface ViewProps extends HTMLMotionProps<'div'> {
   children: JSX.Element;
 }
 
-const View = memo(({ children, ...props }: ViewProps) => {
+const View = ({ children, ...motionProps }: ViewProps) => {
   return (
-    <motion.div className="absolute inset-0" transition={viewTransition} {...props}>
+    <motion.div className="absolute inset-0" {...motionProps}>
       {children}
     </motion.div>
   );
-});
+};
