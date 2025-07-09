@@ -5,7 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { classNames } from '~/utils/classNames';
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1 transition-colors focus:outline-none focus:ring-2 focus:ring-bolt-elements-ring focus:ring-offset-2',
+  'inline-flex items-center mobile-gap-sm transition-colors focus:outline-none focus:ring-2 focus:ring-bolt-elements-ring focus:ring-offset-2',
   {
     variants: {
       variant: {
@@ -24,10 +24,10 @@ const badgeVariants = cva(
           'border border-bolt-elements-borderColor/30 dark:border-bolt-elements-borderColor-dark/30 bg-white/50 dark:bg-bolt-elements-background-depth-4/50 backdrop-blur-sm text-bolt-elements-textSecondary dark:text-bolt-elements-textSecondary-dark',
       },
       size: {
-        default: 'rounded-full px-2.5 py-0.5 text-xs font-semibold',
-        sm: 'rounded-full px-1.5 py-0.5 text-xs',
-        md: 'rounded-md px-2 py-1 text-xs font-medium',
-        lg: 'rounded-md px-2.5 py-1.5 text-sm',
+        default: 'rounded-full px-1.5 py-0.5 text-xs sm:px-2.5 sm:text-xs font-semibold',
+        sm: 'rounded-full px-1 py-0.5 text-xs sm:px-1.5',
+        md: 'rounded-md px-1.5 py-0.5 text-xs sm:px-2 sm:py-1 font-medium',
+        lg: 'rounded-md px-2 py-1 text-xs sm:px-2.5 sm:py-1.5 sm:text-sm',
       },
     },
     defaultVariants: {

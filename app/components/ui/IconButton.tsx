@@ -46,7 +46,7 @@ export const IconButton = memo(
         <button
           ref={ref}
           className={classNames(
-            'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed focus:outline-none',
+            'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md mobile-p-sm enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed focus:outline-none',
             {
               [classNames('opacity-30', disabledClassName)]: disabled,
             },
@@ -62,12 +62,26 @@ export const IconButton = memo(
             onClick?.(event);
           }}
         >
-          {children ? children : <div className={classNames(icon, getIconSize(size), iconClassName)}></div>}
+          {children ? children : <div className={classNames(icon, getMobileIconSize(size), iconClassName)}></div>}
         </button>
       );
     },
   ),
 );
+
+function getMobileIconSize(size: IconSize) {
+  if (size === 'sm') {
+    return 'mobile-icon-sm';
+  } else if (size === 'md') {
+    return 'mobile-icon-md';
+  } else if (size === 'lg') {
+    return 'mobile-icon-lg';
+  } else if (size === 'xl') {
+    return 'mobile-icon-xl';
+  } else {
+    return 'mobile-icon-xl';
+  }
+}
 
 function getIconSize(size: IconSize) {
   if (size === 'sm') {

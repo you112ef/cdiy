@@ -14,6 +14,53 @@ body {
   background-color: var(--bolt-elements-bg-depth-1);
 }
 
+/* Mobile-specific styles */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px; /* Smaller base font size on mobile */
+  }
+  
+  body {
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.4;
+  }
+  
+  /* Improve touch targets */
+  button, 
+  [role="button"], 
+  input, 
+  select, 
+  textarea {
+    min-height: 44px; /* Apple's recommended minimum touch target */
+    min-width: 44px;
+  }
+  
+  /* Better mobile scrolling */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Reduce motion for mobile performance */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+  
+  /* Mobile-specific form styling */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  textarea {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
 :root {
   --gradient-opacity: 0.8;
   --primary-color: rgba(158, 117, 240, var(--gradient-opacity));
