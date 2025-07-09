@@ -6,63 +6,108 @@ export const supportedLanguages = [
     name: 'VUE',
     extensions: ['vue'],
     async load() {
-      return import('@codemirror/lang-vue').then((module) => module.vue());
+      try {
+        return import('@codemirror/lang-vue').then((module) => module.vue());
+      } catch (error) {
+        console.warn('Failed to load Vue language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'TypeScript',
     extensions: ['ts'],
     async load() {
-      return import('@codemirror/lang-javascript').then((module) => module.javascript({ typescript: true }));
+      try {
+        return import('@codemirror/lang-javascript').then((module) => module.javascript({ typescript: true }));
+      } catch (error) {
+        console.warn('Failed to load TypeScript language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'JavaScript',
     extensions: ['js', 'mjs', 'cjs'],
     async load() {
-      return import('@codemirror/lang-javascript').then((module) => module.javascript());
+      try {
+        return import('@codemirror/lang-javascript').then((module) => module.javascript());
+      } catch (error) {
+        console.warn('Failed to load JavaScript language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'TSX',
     extensions: ['tsx'],
     async load() {
-      return import('@codemirror/lang-javascript').then((module) => module.javascript({ jsx: true, typescript: true }));
+      try {
+        return import('@codemirror/lang-javascript').then((module) => module.javascript({ jsx: true, typescript: true }));
+      } catch (error) {
+        console.warn('Failed to load TSX language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'JSX',
     extensions: ['jsx'],
     async load() {
-      return import('@codemirror/lang-javascript').then((module) => module.javascript({ jsx: true }));
+      try {
+        return import('@codemirror/lang-javascript').then((module) => module.javascript({ jsx: true }));
+      } catch (error) {
+        console.warn('Failed to load JSX language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'HTML',
     extensions: ['html', 'htm'],
     async load() {
-      return import('@codemirror/lang-html').then((module) => module.html());
+      try {
+        return import('@codemirror/lang-html').then((module) => module.html());
+      } catch (error) {
+        console.warn('Failed to load HTML language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'CSS',
     extensions: ['css'],
     async load() {
-      return import('@codemirror/lang-css').then((module) => module.css());
+      try {
+        return import('@codemirror/lang-css').then((module) => module.css());
+      } catch (error) {
+        console.warn('Failed to load CSS language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'SASS',
     extensions: ['sass'],
     async load() {
-      return import('@codemirror/lang-sass').then((module) => module.sass({ indented: true }));
+      try {
+        return import('@codemirror/lang-sass').then((module) => module.sass({ indented: true }));
+      } catch (error) {
+        console.warn('Failed to load SASS language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'SCSS',
     extensions: ['scss'],
     async load() {
-      return import('@codemirror/lang-sass').then((module) => module.sass({ indented: false }));
+      try {
+        return import('@codemirror/lang-sass').then((module) => module.sass({ indented: false }));
+      } catch (error) {
+        console.warn('Failed to load SCSS language support:', error);
+        return undefined;
+      }
     },
   }),
   
@@ -71,28 +116,12 @@ export const supportedLanguages = [
     name: 'JSON',
     extensions: ['json', 'jsonc'],
     async load() {
-      return import('@codemirror/lang-json').then((module) => module.json());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'YAML',
-    extensions: ['yaml', 'yml'],
-    async load() {
-      return import('@codemirror/lang-yaml').then((module) => module.yaml());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'TOML',
-    extensions: ['toml'],
-    async load() {
-      return import('@codemirror/lang-toml').then((module) => module.toml());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'XML',
-    extensions: ['xml', 'xsl', 'xsd'],
-    async load() {
-      return import('@codemirror/lang-xml').then((module) => module.xml());
+      try {
+        return import('@codemirror/lang-json').then((module) => module.json());
+      } catch (error) {
+        console.warn('Failed to load JSON language support:', error);
+        return undefined;
+      }
     },
   }),
   
@@ -101,7 +130,12 @@ export const supportedLanguages = [
     name: 'Markdown',
     extensions: ['md', 'markdown', 'mdx'],
     async load() {
-      return import('@codemirror/lang-markdown').then((module) => module.markdown());
+      try {
+        return import('@codemirror/lang-markdown').then((module) => module.markdown());
+      } catch (error) {
+        console.warn('Failed to load Markdown language support:', error);
+        return undefined;
+      }
     },
   }),
   
@@ -110,135 +144,38 @@ export const supportedLanguages = [
     name: 'Python',
     extensions: ['py', 'pyw', 'pyi'],
     async load() {
-      return import('@codemirror/lang-python').then((module) => module.python());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'Java',
-    extensions: ['java'],
-    async load() {
-      return import('@codemirror/lang-java').then((module) => module.java());
+      try {
+        return import('@codemirror/lang-python').then((module) => module.python());
+      } catch (error) {
+        console.warn('Failed to load Python language support:', error);
+        return undefined;
+      }
     },
   }),
   LanguageDescription.of({
     name: 'C++',
     extensions: ['cpp', 'cxx', 'cc', 'c'],
     async load() {
-      return import('@codemirror/lang-cpp').then((module) => module.cpp());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'C#',
-    extensions: ['cs'],
-    async load() {
-      return import('@codemirror/lang-csharp').then((module) => module.csharp());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'PHP',
-    extensions: ['php', 'php3', 'php4', 'php5', 'phtml'],
-    async load() {
-      return import('@codemirror/lang-php').then((module) => module.php());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'Rust',
-    extensions: ['rs'],
-    async load() {
-      return import('@codemirror/lang-rust').then((module) => module.rust());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'Go',
-    extensions: ['go'],
-    async load() {
-      return import('@codemirror/lang-go').then((module) => module.go());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'Ruby',
-    extensions: ['rb'],
-    async load() {
-      return import('@codemirror/lang-ruby').then((module) => module.ruby());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'Swift',
-    extensions: ['swift'],
-    async load() {
-      return import('@codemirror/lang-swift').then((module) => module.swift());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'Kotlin',
-    extensions: ['kt', 'kts'],
-    async load() {
-      return import('@codemirror/lang-kotlin').then((module) => module.kotlin());
+      try {
+        return import('@codemirror/lang-cpp').then((module) => module.cpp());
+      } catch (error) {
+        console.warn('Failed to load C++ language support:', error);
+        return undefined;
+      }
     },
   }),
   
-  // Shell & Scripts
-  LanguageDescription.of({
-    name: 'Shell',
-    extensions: ['sh', 'bash', 'zsh', 'fish'],
-    async load() {
-      return import('@codemirror/lang-shell').then((module) => module.shell());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'PowerShell',
-    extensions: ['ps1', 'psm1', 'psd1'],
-    async load() {
-      return import('@codemirror/lang-powershell').then((module) => module.powershell());
-    },
-  }),
-  
-  // Database
-  LanguageDescription.of({
-    name: 'SQL',
-    extensions: ['sql'],
-    async load() {
-      return import('@codemirror/lang-sql').then((module) => module.sql());
-    },
-  }),
-  
-  // Special Files
-  LanguageDescription.of({
-    name: 'Dockerfile',
-    extensions: ['dockerfile'],
-    filename: /^Dockerfile$/i,
-    async load() {
-      return import('@codemirror/lang-dockerfile').then((module) => module.dockerfile());
-    },
-  }),
+  // WebAssembly
   LanguageDescription.of({
     name: 'WebAssembly',
     extensions: ['wat', 'wast'],
     async load() {
-      return import('@codemirror/lang-wast').then((module) => module.wast());
-    },
-  }),
-  
-  // Other Languages
-  LanguageDescription.of({
-    name: 'Dart',
-    extensions: ['dart'],
-    async load() {
-      return import('@codemirror/lang-dart').then((module) => module.dart());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'Scala',
-    extensions: ['scala', 'sc'],
-    async load() {
-      return import('@codemirror/lang-scala').then((module) => module.scala());
-    },
-  }),
-  LanguageDescription.of({
-    name: 'Haskell',
-    extensions: ['hs', 'lhs'],
-    async load() {
-      return import('@codemirror/lang-haskell').then((module) => module.haskell());
+      try {
+        return import('@codemirror/lang-wast').then((module) => module.wast());
+      } catch (error) {
+        console.warn('Failed to load WebAssembly language support:', error);
+        return undefined;
+      }
     },
   }),
 ];
@@ -248,7 +185,8 @@ export async function getLanguage(fileName: string) {
 
   if (languageDescription) {
     try {
-      return await languageDescription.load();
+      const language = await languageDescription.load();
+      return language;
     } catch (error) {
       console.warn(`Failed to load language for ${fileName}:`, error);
       return undefined;
