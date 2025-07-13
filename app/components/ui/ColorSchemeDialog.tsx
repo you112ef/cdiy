@@ -4,13 +4,15 @@ import { Button } from './Button';
 import IconButton from './IconButton';
 import type { DesignScheme } from '~/types/design-scheme';
 import { defaultDesignScheme, designFeatures, designFonts, paletteRoles } from '~/types/design-scheme';
+import { classNames } from '~/lib/utils';
 
 export interface ColorSchemeDialogProps {
   designScheme?: DesignScheme;
   setDesignScheme?: (scheme: DesignScheme) => void;
+  className?: string;
 }
 
-export const ColorSchemeDialog: React.FC<ColorSchemeDialogProps> = ({ setDesignScheme, designScheme }) => {
+export const ColorSchemeDialog: React.FC<ColorSchemeDialogProps> = ({ setDesignScheme, designScheme, className }) => {
   const [palette, setPalette] = useState<{ [key: string]: string }>(() => {
     if (designScheme?.palette) {
       return { ...defaultDesignScheme.palette, ...designScheme.palette };
@@ -272,7 +274,7 @@ export const ColorSchemeDialog: React.FC<ColorSchemeDialogProps> = ({ setDesignS
 
   return (
     <div>
-      <IconButton className="transition-all" onClick={() => setIsDialogOpen(!isDialogOpen)} icon="i-ph:palette text-xl" />
+      <IconButton className={classNames('transition-all', className)} onClick={() => setIsDialogOpen(!isDialogOpen)} icon="i-ph:palette text-xl" />
 
       <DialogRoot open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <Dialog>
