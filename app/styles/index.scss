@@ -7,11 +7,102 @@
 @use 'components/editor.scss';
 @use 'components/toast.scss';
 
+/* YOUSEF SH Global Styles */
+:root {
+  /* YOUSEF SH Brand Colors */
+  --yousefsh-primary: #10b981;
+  --yousefsh-secondary: #8b5cf6;
+  --yousefsh-accent: #f59e0b;
+  --yousefsh-success: #10b981;
+  --yousefsh-warning: #f59e0b;
+  --yousefsh-error: #ef4444;
+  --yousefsh-info: #3b82f6;
+  
+  /* YOUSEF SH Gradients */
+  --yousefsh-gradient-primary: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --yousefsh-gradient-secondary: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  --yousefsh-gradient-accent: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --yousefsh-gradient-dark: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+  
+  /* YOUSEF SH Shadows */
+  --yousefsh-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --yousefsh-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --yousefsh-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --yousefsh-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --yousefsh-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  
+  /* YOUSEF SH Transitions */
+  --yousefsh-transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --yousefsh-transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --yousefsh-transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 html,
 body {
   height: 100%;
   width: 100%;
   background-color: var(--bolt-elements-bg-depth-1);
+  font-family: 'Inter', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* YOUSEF SH Typography */
+.font-arabic {
+  font-family: 'Cairo', 'Inter', sans-serif;
+  direction: rtl;
+  text-align: right;
+}
+
+.font-english {
+  font-family: 'Inter', 'Cairo', sans-serif;
+  direction: ltr;
+  text-align: left;
+}
+
+/* YOUSEF SH Focus Styles */
+.yousefsh-focus {
+  @apply focus:outline-none focus:ring-2 focus:ring-yousefsh-primary focus:ring-offset-2 focus:ring-offset-zinc-900;
+}
+
+.yousefsh-focus-light {
+  @apply focus:outline-none focus:ring-2 focus:ring-yousefsh-primary focus:ring-offset-2 focus:ring-offset-white;
+}
+
+/* YOUSEF SH Button Styles */
+.yousefsh-btn {
+  @apply inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.yousefsh-btn-primary {
+  @apply yousefsh-btn bg-yousefsh-primary text-white hover:bg-emerald-600;
+  @apply focus:ring-yousefsh-primary focus:ring-offset-zinc-900;
+  box-shadow: var(--yousefsh-shadow-md);
+}
+
+.yousefsh-btn-secondary {
+  @apply yousefsh-btn bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white;
+  @apply focus:ring-zinc-500 focus:ring-offset-zinc-900;
+  @apply border border-zinc-600 hover:border-zinc-500;
+}
+
+.yousefsh-btn-ghost {
+  @apply yousefsh-btn bg-transparent text-zinc-400 hover:bg-zinc-800 hover:text-white;
+  @apply focus:ring-zinc-500 focus:ring-offset-zinc-900;
+}
+
+/* YOUSEF SH Card Styles */
+.yousefsh-card {
+  @apply bg-zinc-800 border border-zinc-700 rounded-xl shadow-lg;
+  @apply transition-all duration-200 hover:shadow-xl;
+  backdrop-filter: blur(10px);
+}
+
+.yousefsh-card-hover {
+  @apply yousefsh-card hover:border-zinc-600 hover:bg-zinc-750;
 }
 
 /* Mobile-specific styles */
@@ -59,16 +150,32 @@ body {
   textarea {
     font-size: 16px; /* Prevent zoom on iOS */
   }
+  
+  /* Mobile-specific YOUSEF SH adjustments */
+  .yousefsh-card {
+    @apply rounded-lg;
+    margin: 0.5rem;
+  }
+  
+  .yousefsh-btn {
+    @apply rounded-lg;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Tablet-specific styles */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .yousefsh-card {
+    @apply rounded-xl;
+    margin: 0.75rem;
+  }
 }
 
 :root {
   --gradient-opacity: 0.8;
-  --primary-color: rgba(158, 117, 240, var(--gradient-opacity));
-  --secondary-color: rgba(138, 43, 226, var(--gradient-opacity));
-  --accent-color: rgba(128, 59, 239, var(--gradient-opacity));
-  // --primary-color: rgba(147, 112, 219, var(--gradient-opacity));
-  // --secondary-color: rgba(138, 43, 226, var(--gradient-opacity));
-  // --accent-color: rgba(180, 170, 220, var(--gradient-opacity));
+  --primary-color: rgba(16, 185, 129, var(--gradient-opacity)); /* YOUSEF SH Green */
+  --secondary-color: rgba(139, 92, 246, var(--gradient-opacity)); /* YOUSEF SH Purple */
+  --accent-color: rgba(245, 158, 11, var(--gradient-opacity)); /* YOUSEF SH Orange */
 }
 
 .modern-scrollbar {
@@ -76,8 +183,8 @@ body {
 
   // WebKit scrollbar styling
   &::-webkit-scrollbar {
-    width: 2px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -85,36 +192,116 @@ body {
   }
 
   &::-webkit-scrollbar-thumb {
-    // Use CSS variables for colors
-    background-color: var(--modern-scrollbar-thumb-background);
-    border-radius: 9999px; // pill shape
-    border: 2px solid transparent; // for padding-like effect
+    background-color: rgba(156, 163, 175, 0.3);
+    border-radius: 9999px;
+    border: 2px solid transparent;
     background-clip: content-box;
-    transition: background-color 0.2s ease-in-out; // Add transition
+    transition: background-color var(--yousefsh-transition-normal);
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    // Use CSS variable for hover color
-    background-color: var(--modern-scrollbar-thumb-backgroundHover);
+    background-color: rgba(156, 163, 175, 0.5);
   }
 
   // Firefox support
   scrollbar-width: thin;
-  // Use CSS variables for Firefox colors
-  scrollbar-color: var(--modern-scrollbar-thumb-backgroundHover) transparent; // Use hover color for thumb for consistency
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
 }
 
 .modern-scrollbar-invert {
   &::-webkit-scrollbar-thumb {
-    // Override with a contrasting color, e.g., primary text color with transparency
-    background-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 70%);
+    background-color: rgba(255, 255, 255, 0.2);
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    // Darker/more opaque version on hover
-    background-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 
-  // Firefox support for inverted colors
-  scrollbar-color: color-mix(in srgb, var(--bolt-elements-textPrimary), transparent 50%) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+}
+
+/* YOUSEF SH Loading States */
+.yousefsh-loading {
+  @apply animate-pulse bg-zinc-700 rounded;
+}
+
+.yousefsh-skeleton {
+  @apply yousefsh-loading;
+  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* YOUSEF SH Animations */
+@keyframes yousefsh-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes yousefsh-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.yousefsh-fade-in {
+  animation: yousefsh-fade-in var(--yousefsh-transition-slow) ease-out;
+}
+
+.yousefsh-slide-in {
+  animation: yousefsh-slide-in var(--yousefsh-transition-slow) ease-out;
+}
+
+/* YOUSEF SH Responsive Utilities */
+.yousefsh-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.yousefsh-section {
+  @apply py-8 sm:py-12 lg:py-16;
+}
+
+/* YOUSEF SH Dark Mode Enhancements */
+.dark {
+  color-scheme: dark;
+  
+  .yousefsh-card {
+    @apply bg-zinc-800 border-zinc-700;
+  }
+  
+  .yousefsh-btn-secondary {
+    @apply bg-zinc-700 text-zinc-300 hover:bg-zinc-600;
+  }
+}
+
+/* YOUSEF SH Print Styles */
+@media print {
+  .yousefsh-no-print {
+    display: none !important;
+  }
+  
+  .yousefsh-card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+  }
 }

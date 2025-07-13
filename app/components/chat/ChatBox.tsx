@@ -8,7 +8,7 @@ import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import FilePreview from './FilePreview';
 import { ScreenshotStateManager } from './ScreenshotStateManager';
 import { SendButton } from './SendButton.client';
-import { IconButton } from '~/components/ui/IconButton';
+import IconButton from '~/components/ui/IconButton';
 import { toast } from 'react-toastify';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 import { SupabaseConnection } from './SupabaseConnection';
@@ -66,39 +66,22 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'relative bg-zinc-800/70 p-4 rounded-xl shadow-inner border border-zinc-700 relative w-full max-w-chat mx-auto z-prompt backdrop-blur-sm',
+        'relative bg-zinc-800/80 p-4 sm:p-6 rounded-2xl shadow-2xl flex flex-col gap-4 border border-zinc-700/50 w-full max-w-2xl mx-auto z-prompt backdrop-blur-md',
+        'yousefsh-card-hover',
+        'sm:rounded-xl sm:gap-3',
       )}
     >
-      <svg className={classNames(styles.PromptEffectContainer)}>
-        <defs>
-          <linearGradient
-            id="line-gradient"
-            x1="20%"
-            y1="0%"
-            x2="-14%"
-            y2="10%"
-            gradientUnits="userSpaceOnUse"
-            gradientTransform="rotate(-45)"
-          >
-            <stop offset="0%" stopColor="#a855f7" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#a855f7" stopOpacity="80%"></stop>
-            <stop offset="50%" stopColor="#a855f7" stopOpacity="80%"></stop>
-            <stop offset="100%" stopColor="#a855f7" stopOpacity="0%"></stop>
-          </linearGradient>
-          <linearGradient id="shine-gradient">
-            <stop offset="0%" stopColor="white" stopOpacity="0%"></stop>
-            <stop offset="40%" stopColor="#ffffff" stopOpacity="80%"></stop>
-            <stop offset="50%" stopColor="#ffffff" stopOpacity="80%"></stop>
-            <stop offset="100%" stopColor="white" stopOpacity="0%"></stop>
-          </linearGradient>
-        </defs>
-        <rect className={classNames(styles.PromptEffectLine)} pathLength="100" strokeLinecap="round"></rect>
-        <rect className={classNames(styles.PromptShine)} x="48" y="24" width="70" height="1"></rect>
-      </svg>
+      {/* YOUSEF SH Gradient Border Effect */}
+      <div className="absolute inset-0 rounded-2xl sm:rounded-xl bg-gradient-to-r from-emerald-500/10 via-purple-500/10 to-orange-500/10 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      
+      {/* Model Settings Section */}
       <div>
         <ClientOnly>
           {() => (
-            <div className={props.isModelSettingsCollapsed ? 'hidden' : ''}>
+            <div className={classNames(
+              'transition-all duration-300 ease-in-out overflow-hidden',
+              props.isModelSettingsCollapsed ? 'max-h-0 opacity-0' : 'max-h-96 opacity-100'
+            )}>
               <ModelSelector
                 key={props.provider?.name + ':' + props.modelList.length}
                 model={props.model}
@@ -125,6 +108,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           )}
         </ClientOnly>
       </div>
+
+      {/* File Preview Section */}
       <FilePreview
         files={props.uploadedFiles}
         imageDataList={props.imageDataList}
@@ -133,6 +118,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           props.setImageDataList?.(props.imageDataList.filter((_, i) => i !== index));
         }}
       />
+
+      {/* Screenshot State Manager */}
       <ClientOnly>
         {() => (
           <ScreenshotStateManager
@@ -143,37 +130,47 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           />
         )}
       </ClientOnly>
+
+      {/* Selected Element Indicator */}
       {props.selectedElement && (
-        <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-zinc-600 text-white flex py-1 px-2.5 font-medium text-xs bg-zinc-800">
-          <div className="flex gap-2 items-center lowercase">
-            <code className="bg-purple-500 rounded px-1.5 py-1 mr-0.5 text-white text-xs">
+        <div className="flex mx-1.5 gap-2 items-center justify-between rounded-lg rounded-b-none border border-b-none border-emerald-500/50 text-white py-2 px-3 font-medium text-xs bg-emerald-500/10 backdrop-blur-sm">
+          <div className="flex gap-2 items-center">
+            <code className="bg-emerald-600 rounded px-2 py-1 text-white text-xs font-mono">
               {props?.selectedElement?.tagName}
             </code>
-            selected for inspection
+            <span className="font-arabic">عنصر محدد للفحص</span>
           </div>
           <button
-            className="bg-transparent text-purple-400 hover:text-purple-300 transition-colors"
+            className="bg-transparent text-emerald-400 hover:text-emerald-300 transition-colors font-arabic"
             onClick={() => props.setSelectedElement?.(null)}
           >
-            Clear
+            مسح
           </button>
         </div>
       )}
-      <div className={classNames('relative shadow-md border border-zinc-600 backdrop-blur rounded-lg bg-zinc-800')}>
+
+      {/* Input Section */}
+      <div className={classNames(
+        'relative shadow-lg border border-zinc-600/50 backdrop-blur-md rounded-xl bg-zinc-800/90 flex items-center gap-3 p-3',
+        'sm:rounded-lg sm:gap-2 sm:p-2',
+        'transition-all duration-200 hover:border-zinc-500/50 hover:shadow-xl'
+      )}>
         <textarea
           ref={props.textareaRef}
           className={classNames(
-            'w-full pl-4 pt-4 pr-16 outline-none resize-none text-white placeholder-zinc-400 bg-transparent text-sm',
+            'w-full pl-3 pt-3 pr-16 outline-none resize-none text-white placeholder-zinc-400 bg-transparent text-sm font-arabic',
             'transition-all duration-200',
-            'focus:ring-2 focus:ring-purple-500/50',
+            'focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50',
+            'min-h-[44px] max-h-[120px] sm:min-h-[40px] sm:max-h-[100px]',
+            'rounded-lg',
           )}
           onDragEnter={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '2px solid #a855f7';
+            e.currentTarget.style.border = '2px solid #10b981';
           }}
           onDragOver={(e) => {
             e.preventDefault();
-            e.currentTarget.style.border = '2px solid #a855f7';
+            e.currentTarget.style.border = '2px solid #10b981';
           }}
           onDragLeave={(e) => {
             e.preventDefault();
@@ -227,104 +224,117 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             minHeight: props.TEXTAREA_MIN_HEIGHT,
             maxHeight: props.TEXTAREA_MAX_HEIGHT,
           }}
-          placeholder={props.chatMode === 'build' ? 'How can Bolt help you today?' : 'What would you like to discuss?'}
+          placeholder={props.chatMode === 'build' ? 'كيف يمكن لـ YOUSEF SH مساعدتك اليوم؟' : 'ماذا تريد أن تناقش؟'}
           translate="no"
         />
-        <ClientOnly>
-          {() => (
-            <SendButton
-              show={props.input.length > 0 || props.isStreaming || props.uploadedFiles.length > 0}
-              isStreaming={props.isStreaming}
-              disabled={!props.providerList || props.providerList.length === 0}
-              onClick={(event) => {
-                if (props.isStreaming) {
-                  props.handleStop?.();
-                  return;
-                }
-
-                if (props.input.length > 0 || props.uploadedFiles.length > 0) {
-                  props.handleSendMessage?.(event);
-                }
-              }}
-            />
+        
+        {/* Send Button */}
+        <button
+          className={classNames(
+            'bg-emerald-600 hover:bg-emerald-700 rounded-lg w-12 h-12 sm:w-10 sm:h-10 flex items-center justify-center text-lg transition-all duration-200',
+            'shadow-lg hover:shadow-xl',
+            'focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-zinc-800',
+            props.isStreaming ? 'bg-red-600 hover:bg-red-700' : ''
           )}
-        </ClientOnly>
-        <div className="flex justify-between items-center text-sm p-4 pt-2">
-          <div className="flex gap-1 items-center">
-            <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-            <IconButton
-              title="Upload file"
-              className="transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2"
-              onClick={() => props.handleFileUpload()}
-            >
-              <div className="i-ph:paperclip text-xl"></div>
-            </IconButton>
-            <IconButton
-              title="Enhance prompt"
-              disabled={props.input.length === 0 || props.enhancingPrompt}
+          onClick={() => {
+            if (props.isStreaming) {
+              props.handleStop?.();
+              return;
+            }
+
+            if (props.input.length > 0 || props.uploadedFiles.length > 0) {
+              const fakeEvent = { currentTarget: null } as unknown as React.UIEvent<Element, UIEvent>;
+              props.handleSendMessage?.(fakeEvent);
+            }
+          }}
+          title={props.isStreaming ? 'إيقاف' : 'إرسال'}
+        >
+          {props.isStreaming ? (
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <span className="font-arabic">إرسال</span>
+          )}
+        </button>
+      </div>
+
+      {/* Toolbar Section */}
+      <div className="flex justify-between items-center text-sm p-2 pt-1 sm:p-4 sm:pt-2">
+        <div className="flex gap-1 items-center overflow-x-auto flex-nowrap sm:overflow-visible scrollbar-hide">
+          <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} className="hidden sm:block" />
+          
+          <button
+            className="transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2 text-base sm:text-xl"
+            onClick={() => props.handleFileUpload()}
+            title="إرفاق ملف"
+          >
+            <div className="i-ph:paperclip" />
+          </button>
+          
+          <button
+            disabled={props.input.length === 0 || props.enhancingPrompt}
+            className={classNames(
+              'transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2 text-base sm:text-xl',
+              props.enhancingPrompt ? 'opacity-100' : 'disabled:opacity-50',
+            )}
+            onClick={() => {
+              props.enhancePrompt?.();
+              toast.success('تم تحسين النص!', { position: 'top-right' });
+            }}
+            title="تحسين النص"
+          >
+            <div className={props.enhancingPrompt ? 'i-svg-spinners:90-ring-with-bg text-emerald-400 animate-spin' : 'i-bolt:stars'} />
+          </button>
+
+          <SpeechRecognitionButton
+            isListening={props.isListening}
+            onStart={props.startListening}
+            onStop={props.stopListening}
+            disabled={props.isStreaming}
+            className="text-base sm:text-xl"
+          />
+          
+          {props.chatStarted && (
+            <button
               className={classNames(
-                'transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2',
-                props.enhancingPrompt ? 'opacity-100' : 'disabled:opacity-50',
+                'transition-all flex items-center gap-1 px-1.5 rounded-lg p-2 text-base sm:text-xl',
+                props.chatMode === 'discuss'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
+                  : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white',
               )}
               onClick={() => {
-                props.enhancePrompt?.();
-                toast.success('Prompt enhanced!');
+                props.setChatMode?.(props.chatMode === 'discuss' ? 'build' : 'discuss');
               }}
+              title={props.chatMode === 'discuss' ? 'التبديل إلى وضع البناء' : 'التبديل إلى وضع النقاش'}
             >
-              {props.enhancingPrompt ? (
-                <div className="i-svg-spinners:90-ring-with-bg text-purple-400 text-xl animate-spin"></div>
-              ) : (
-                <div className="i-bolt:stars text-xl"></div>
-              )}
-            </IconButton>
-
-            <SpeechRecognitionButton
-              isListening={props.isListening}
-              onStart={props.startListening}
-              onStop={props.stopListening}
-              disabled={props.isStreaming}
-            />
-            {props.chatStarted && (
-              <IconButton
-                title="Discuss"
-                className={classNames(
-                  'transition-all flex items-center gap-1 px-1.5 rounded-lg p-2',
-                  props.chatMode === 'discuss'
-                    ? 'bg-purple-500/20 text-purple-300 border border-purple-500/50'
-                    : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white',
-                )}
-                onClick={() => {
-                  props.setChatMode?.(props.chatMode === 'discuss' ? 'build' : 'discuss');
-                }}
-              >
-                <div className={`i-ph:chats text-xl`} />
-                {props.chatMode === 'discuss' ? <span>Discuss</span> : <span />}
-              </IconButton>
-            )}
-            <IconButton
-              title="Model Settings"
-              className={classNames('transition-all flex items-center gap-1 rounded-lg p-2', {
-                'bg-purple-500/20 text-purple-300 border border-purple-500/50': props.isModelSettingsCollapsed,
-                'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white': !props.isModelSettingsCollapsed,
-              })}
-              onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
-              disabled={!props.providerList || props.providerList.length === 0}
-            >
-              <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
-              {props.isModelSettingsCollapsed ? <span className="text-xs">{props.model}</span> : <span />}
-            </IconButton>
-          </div>
-          {props.input.length > 3 ? (
-            <div className="text-xs text-zinc-400">
-              Use{' '}
-              <kbd className="kdb px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Shift</kbd> +{' '}
-              <kbd className="kdb px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Return</kbd>{' '}
-              for a new line
-            </div>
-          ) : null}
-          <SupabaseConnection />
-          <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />
+              <div className="i-ph:chats" />
+            </button>
+          )}
+          
+          <button
+            className={classNames('transition-all flex items-center gap-1 rounded-lg p-2 text-base sm:text-xl', {
+              'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50': props.isModelSettingsCollapsed,
+              'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white': !props.isModelSettingsCollapsed,
+            })}
+            onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
+            disabled={!props.providerList || props.providerList.length === 0}
+            title={props.isModelSettingsCollapsed ? 'إظهار الإعدادات' : 'إخفاء الإعدادات'}
+          >
+            <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'}`} />
+          </button>
         </div>
+        
+        {/* Keyboard Shortcuts Help */}
+        {props.input.length > 3 ? (
+          <div className="text-xs text-zinc-400 font-arabic hidden sm:block">
+            استخدم{' '}
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Shift</kbd> +{' '}
+            <kbd className="px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Return</kbd>{' '}
+            لسطر جديد
+          </div>
+        ) : null}
+        
+        <SupabaseConnection />
+        <ExpoQrModal open={props.qrModalOpen} onClose={() => props.setQrModalOpen(false)} />
       </div>
     </div>
   );

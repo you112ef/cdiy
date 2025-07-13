@@ -3,7 +3,7 @@ import { motion, type Variants } from 'framer-motion';
 import React, { memo, type ReactNode, useState, useEffect } from 'react';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
-import { IconButton } from './IconButton';
+import IconButton from './IconButton';
 import { Button } from './Button';
 import { FixedSizeList } from 'react-window';
 import { Checkbox } from './Checkbox';
@@ -114,7 +114,7 @@ export const Dialog = memo(({ children, className, showCloseButton = true, onClo
       <RadixDialog.Content asChild>
         <motion.div
           className={classNames(
-            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-zinc-900 rounded-2xl shadow-xl border border-zinc-700 z-[9999] w-[95vw] max-w-md sm:max-w-lg md:max-w-xl focus:outline-none max-h-[90vh] overflow-hidden',
+            'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-zinc-900 p-6 rounded-2xl shadow-xl border border-zinc-700 z-[9999] w-full max-w-md sm:max-w-lg md:max-w-xl focus:outline-none max-h-[90vh] overflow-hidden',
             className,
           )}
           initial="closed"

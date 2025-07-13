@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { IconButton } from '~/components/ui/IconButton';
+import IconButton from '~/components/ui/IconButton';
 import type { ProviderInfo } from '~/types/model';
 import Cookies from 'js-cookie';
 
@@ -125,41 +125,14 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
                         bg-bolt-elements-prompt-background text-bolt-elements-textPrimary 
                         focus:outline-none focus:ring-2 focus:ring-bolt-elements-focus"
             />
-            <IconButton
-              onClick={handleSave}
-              title="Save API Key"
-              className="bg-green-500/10 hover:bg-green-500/20 text-green-500"
-            >
-              <div className="i-ph:check w-4 h-4" />
-            </IconButton>
-            <IconButton
-              onClick={() => setIsEditing(false)}
-              title="Cancel"
-              className="bg-red-500/10 hover:bg-red-500/20 text-red-500"
-            >
-              <div className="i-ph:x w-4 h-4" />
-            </IconButton>
+            <IconButton onClick={handleSave} className="bg-green-500 hover:bg-green-600 text-white ml-2" icon="i-ph:check-bold text-lg" />
+            <IconButton onClick={() => setIsEditing(false)} className="bg-red-500/10 hover:bg-red-500/20 text-red-500" icon="i-ph:x w-4 h-4" />
           </div>
         ) : (
           <>
-            {
-              <IconButton
-                onClick={() => setIsEditing(true)}
-                title="Edit API Key"
-                className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500"
-              >
-                <div className="i-ph:pencil-simple w-4 h-4" />
-              </IconButton>
-            }
+            <IconButton onClick={() => setIsEditing(true)} className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-500" icon="i-ph:pencil-simple w-4 h-4" />
             {provider?.getApiKeyLink && !apiKey && (
-              <IconButton
-                onClick={() => window.open(provider?.getApiKeyLink)}
-                title="Get API Key"
-                className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 flex items-center gap-2"
-              >
-                <span className="text-xs whitespace-nowrap">{provider?.labelForGetApiKey || 'Get API Key'}</span>
-                <div className={`${provider?.icon || 'i-ph:key'} w-4 h-4`} />
-              </IconButton>
+              <IconButton onClick={() => window.open(provider?.getApiKeyLink)} className="bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 flex items-center gap-2" icon="i-ph:key w-4 h-4" />
             )}
           </>
         )}
