@@ -1,10 +1,17 @@
 import { classNames } from '~/utils/classNames';
-import IconButton from '~/components/ui/IconButton';
+import { IconButton } from '~/components/ui';
 
 export function DiscussMode() {
   return (
     <div>
-      <IconButton className={classNames('transition-all', 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white')} icon="i-ph:chats text-xl" />
+      <IconButton
+        title="Discuss"
+        className={classNames(
+          'transition-all flex items-center gap-1 bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent',
+        )}
+      >
+        <div className={`i-ph:chats text-xl`} />
+      </IconButton>
     </div>
   );
 }
