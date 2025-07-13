@@ -19,8 +19,8 @@ import 'virtual:uno.css';
 export const links: LinksFunction = () => [
   {
     rel: 'icon',
-    href: '/favicon.svg',
-    type: 'image/svg+xml',
+    href: '/yousefsh-logo.png',
+    type: 'image/png',
   },
   { rel: 'stylesheet', href: reactToastifyStyles },
   { rel: 'stylesheet', href: tailwindReset },
@@ -37,26 +37,46 @@ export const links: LinksFunction = () => [
   },
   {
     rel: 'stylesheet',
-    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+    href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;500;600;700;800;900&display=swap',
   },
 ];
 
 const inlineThemeCode = stripIndents`
-  setTutorialKitTheme();
+  setYousefSHTheme();
 
-  function setTutorialKitTheme() {
-    let theme = localStorage.getItem('bolt_theme') || 'dark';
-    document.querySelector('html')?.setAttribute('data-theme', theme);
+  function setYousefSHTheme() {
+    // Force dark theme for unified YOUSEF SH design
+    const html = document.querySelector('html');
+    const body = document.body;
     
-    // Force dark theme for unified design
-    document.documentElement.classList.add('dark');
+    if (html) {
+      html.setAttribute('data-theme', 'dark');
+      html.classList.add('dark');
+      html.style.colorScheme = 'dark';
+    }
+    
+    if (body) {
+      body.classList.add('dark');
+    }
+    
+    // Set custom CSS variables for YOUSEF SH branding
+    document.documentElement.style.setProperty('--app-brand-color', '#10b981');
+    document.documentElement.style.setProperty('--app-accent-color', '#8b5cf6');
+    document.documentElement.style.setProperty('--app-gradient-start', '#1f1b2e');
+    document.documentElement.style.setProperty('--app-gradient-end', '#151321');
   }
 `;
 
 export const Head = createHead(() => (
   <>
     <meta charSet="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1f1b2e" />
+    <meta name="description" content="YOUSEF SH - تطبيق ذكي للدردشة والبرمجة" />
+    <meta name="application-name" content="YOUSEF SH" />
+    <meta name="apple-mobile-web-app-title" content="YOUSEF SH" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <Meta />
     <Links />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
@@ -67,14 +87,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const _theme = useStore(themeStore);
 
   useEffect(() => {
-    // Force dark theme for unified design
-    document.querySelector('html')?.setAttribute('data-theme', 'dark');
-    document.documentElement.classList.add('dark');
+    // Force dark theme for unified YOUSEF SH design
+    const html = document.querySelector('html');
+    const body = document.body;
+    
+    if (html) {
+      html.setAttribute('data-theme', 'dark');
+      html.classList.add('dark');
+      html.style.colorScheme = 'dark';
+    }
+    
+    if (body) {
+      body.classList.add('dark');
+    }
   }, [_theme]);
 
   return (
-    <div className="bg-gradient-to-b from-[#1f1b2e] to-[#151321] text-white min-h-screen">
-      <ClientOnly>{() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}</ClientOnly>
+    <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 text-white min-h-screen font-sans antialiased">
+      <ClientOnly>
+        {() => (
+          <DndProvider backend={HTML5Backend}>
+            {children}
+          </DndProvider>
+        )}
+      </ClientOnly>
       <ScrollRestoration />
       <Scripts />
     </div>
@@ -87,11 +123,12 @@ export default function App() {
   const _theme = useStore(themeStore);
 
   useEffect(() => {
-    logStore.logSystem('Application initialized', {
-      theme: 'dark', // Force dark theme
+    logStore.logSystem('YOUSEF SH Application initialized', {
+      theme: 'dark',
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),
+      appVersion: '1.0.0',
     });
   }, []);
 
