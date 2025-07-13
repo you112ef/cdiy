@@ -65,6 +65,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
     if (!tabConfiguration?.userTabs || !Array.isArray(tabConfiguration.userTabs)) {
       console.warn('Invalid tab configuration, resetting to defaults');
       resetTabConfiguration();
+
       return [];
     }
 
@@ -219,7 +220,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
               <div className="absolute inset-0 overflow-hidden rounded-2xl opacity-10">
                 <BackgroundRays />
               </div>
-              
+
               <div className="relative z-10 flex flex-col h-full max-h-[90vh]">
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 md:p-6 border-b border-zinc-700 bg-zinc-800/50 rounded-t-2xl">
@@ -257,9 +258,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                 <div className="flex-1 overflow-y-auto">
                   <div className="p-4 md:p-6 transition-opacity duration-150">
                     {activeTab ? (
-                      <div className="max-w-4xl mx-auto">
-                        {getTabComponent(activeTab)}
-                      </div>
+                      <div className="max-w-4xl mx-auto">{getTabComponent(activeTab)}</div>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 max-w-6xl mx-auto">
                         {visibleTabs.map((tab, index) => (
@@ -279,7 +278,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                               className="h-full bg-zinc-800 hover:bg-zinc-700 rounded-2xl shadow-md p-4 md:p-6 cursor-pointer transition-all duration-200 relative border border-zinc-700 hover:border-purple-500/50 group"
                             >
                               {BETA_TABS.has(tab.id) && <BetaLabel />}
-                              
+
                               <div className="flex flex-col h-full">
                                 {/* Tab Icon */}
                                 <div className="flex-shrink-0 mb-3 md:mb-4">
@@ -287,17 +286,17 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                                     <div className="w-5 h-5 md:w-6 md:h-6 text-purple-400 group-hover:text-purple-300" />
                                   </div>
                                 </div>
-                                
+
                                 {/* Tab Title */}
                                 <h3 className="text-sm md:text-base font-semibold text-white mb-2 group-hover:text-purple-300 transition-colors">
                                   {TAB_LABELS[tab.id]}
                                 </h3>
-                                
+
                                 {/* Tab Description */}
                                 <p className="text-xs md:text-sm text-zinc-400 line-clamp-2 flex-1 group-hover:text-zinc-300 transition-colors">
                                   {TAB_DESCRIPTIONS[tab.id]}
                                 </p>
-                                
+
                                 {/* Status Indicator */}
                                 {getTabUpdateStatus(tab.id) && (
                                   <div className="mt-3 flex items-center gap-2">
@@ -307,7 +306,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                                     </span>
                                   </div>
                                 )}
-                                
+
                                 {/* Loading State */}
                                 {loadingTab === tab.id && (
                                   <div className="absolute inset-0 bg-zinc-800/80 rounded-2xl flex items-center justify-center">

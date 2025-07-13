@@ -159,9 +159,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           </button>
         </div>
       )}
-      <div
-        className={classNames('relative shadow-md border border-zinc-600 backdrop-blur rounded-lg bg-zinc-800')}
-      >
+      <div className={classNames('relative shadow-md border border-zinc-600 backdrop-blur rounded-lg bg-zinc-800')}>
         <textarea
           ref={props.textareaRef}
           className={classNames(
@@ -254,9 +252,9 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
         <div className="flex justify-between items-center text-sm p-4 pt-2">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
-            <IconButton 
-              title="Upload file" 
-              className="transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2" 
+            <IconButton
+              title="Upload file"
+              className="transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2"
               onClick={() => props.handleFileUpload()}
             >
               <div className="i-ph:paperclip text-xl"></div>
@@ -266,7 +264,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
               disabled={props.input.length === 0 || props.enhancingPrompt}
               className={classNames(
                 'transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2',
-                props.enhancingPrompt ? 'opacity-100' : 'disabled:opacity-50'
+                props.enhancingPrompt ? 'opacity-100' : 'disabled:opacity-50',
               )}
               onClick={() => {
                 props.enhancePrompt?.();
@@ -318,8 +316,10 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           </div>
           {props.input.length > 3 ? (
             <div className="text-xs text-zinc-400">
-              Use <kbd className="kdb px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Shift</kbd> +{' '}
-              <kbd className="kdb px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Return</kbd> for a new line
+              Use{' '}
+              <kbd className="kdb px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Shift</kbd> +{' '}
+              <kbd className="kdb px-1.5 py-0.5 rounded bg-zinc-700 text-zinc-300 border border-zinc-600">Return</kbd>{' '}
+              for a new line
             </div>
           ) : null}
           <SupabaseConnection />

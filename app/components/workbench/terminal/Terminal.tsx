@@ -50,22 +50,25 @@ export interface TerminalProps {
 
 export const Terminal = memo(
   forwardRef<TerminalRef, TerminalProps>(
-    ({ 
-      className, 
-      theme, 
-      readonly = false, 
-      id, 
-      onTerminalReady, 
-      onTerminalResize, 
-      onData,
-      onTitle,
-      enableSearch = true,
-      enableWebGL = true,
-      fontSize = 14,
-      fontFamily = 'Menlo, "Cascadia Code", "Fira Code", Monaco, courier-new, courier, monospace',
-      cursorBlink = true,
-      scrollback = 1000,
-    }, ref) => {
+    (
+      {
+        className,
+        theme,
+        readonly = false,
+        id,
+        onTerminalReady,
+        onTerminalResize,
+        onData,
+        onTitle,
+        enableSearch = true,
+        enableWebGL = true,
+        fontSize = 14,
+        fontFamily = 'Menlo, "Cascadia Code", "Fira Code", Monaco, courier-new, courier, monospace',
+        cursorBlink = true,
+        scrollback = 1000,
+      },
+      ref,
+    ) => {
       const terminalElementRef = useRef<HTMLDivElement>(null);
       const terminalRef = useRef<XTerm>();
       const fitAddonRef = useRef<FitAddon>();
@@ -73,7 +76,7 @@ export const Terminal = memo(
       const webLinksAddonRef = useRef<WebLinksAddon>();
       const renderAddonRef = useRef<WebglAddon | CanvasAddon>();
       const serializeAddonRef = useRef<SerializeAddon>();
-      
+
       const [currentFontSize, setCurrentFontSize] = useState(fontSize);
       const [isInitialized, setIsInitialized] = useState(false);
 
@@ -81,99 +84,116 @@ export const Terminal = memo(
         if (fitAddonRef.current && terminalRef.current) {
           try {
             fitAddonRef.current.fit();
+
             const terminal = terminalRef.current;
             onTerminalResize?.(terminal.cols, terminal.rows);
           } catch (error) {
             logger.warn('Terminal resize failed:', error);
           }
         }
+        return undefined;
       }, [onTerminalResize]);
 
-      const handleKeyDown = useCallback((event: KeyboardEvent) => {
-        const terminal = terminalRef.current;
-        if (!terminal || readonly) return;
+      const handleKeyDown = useCallback(
+        (event: KeyboardEvent) => {
+          const terminal = terminalRef.current;
 
-        // Handle keyboard shortcuts
-        if (event.ctrlKey || event.metaKey) {
-          switch (event.key.toLowerCase()) {
-            case 'c':
-              if (terminal.hasSelection()) {
-                document.execCommand('copy');
+          if (!terminal || readonly) {
+            return;
+          }
+
+          // Handle keyboard shortcuts
+          if (event.ctrlKey || event.metaKey) {
+            switch (event.key.toLowerCase()) {
+              case 'c':
+                if (terminal.hasSelection()) {
+                  document.execCommand('copy');
+                  event.preventDefault();
+                }
+
+                break;
+              case 'v':
+                if (!readonly) {
+                  navigator.clipboard.readText().then((text) => {
+                    terminal.paste(text);
+                  });
+                  event.preventDefault();
+                }
+
+                break;
+              case 'a':
+                terminal.selectAll();
+                event.preventDefault();
+                break;
+              case 'f':
+                if (enableSearch && searchAddonRef.current) {
+                  // This would trigger search UI in a real implementation
+                  event.preventDefault();
+                }
+
+                break;
+              case '+':
+              case '=':
+                setCurrentFontSize((prev) => Math.min(prev + 2, 32));
+                event.preventDefault();
+                break;
+              case '-':
+                setCurrentFontSize((prev) => Math.max(prev - 2, 8));
+                event.preventDefault();
+                break;
+              case '0':
+                setCurrentFontSize(fontSize);
+                event.preventDefault();
+                break;
+            }
+          }
+
+          // Handle other special keys
+          switch (event.key) {
+            case 'Home':
+              if (event.ctrlKey) {
+                terminal.scrollToTop();
                 event.preventDefault();
               }
+
               break;
-            case 'v':
-              if (!readonly) {
-                navigator.clipboard.readText().then(text => {
-                  terminal.paste(text);
-                });
+            case 'End':
+              if (event.ctrlKey) {
+                terminal.scrollToBottom();
                 event.preventDefault();
               }
+
               break;
-            case 'a':
-              terminal.selectAll();
+            case 'PageUp':
+              terminal.scrollPages(-1);
               event.preventDefault();
               break;
-            case 'f':
-              if (enableSearch && searchAddonRef.current) {
-                // This would trigger search UI in a real implementation
-                event.preventDefault();
-              }
-              break;
-            case '+':
-            case '=':
-              setCurrentFontSize(prev => Math.min(prev + 2, 32));
-              event.preventDefault();
-              break;
-            case '-':
-              setCurrentFontSize(prev => Math.max(prev - 2, 8));
-              event.preventDefault();
-              break;
-            case '0':
-              setCurrentFontSize(fontSize);
+            case 'PageDown':
+              terminal.scrollPages(1);
               event.preventDefault();
               break;
           }
-        }
-
-        // Handle other special keys
-        switch (event.key) {
-          case 'Home':
-            if (event.ctrlKey) {
-              terminal.scrollToTop();
-              event.preventDefault();
-            }
-            break;
-          case 'End':
-            if (event.ctrlKey) {
-              terminal.scrollToBottom();
-              event.preventDefault();
-            }
-            break;
-          case 'PageUp':
-            terminal.scrollPages(-1);
-            event.preventDefault();
-            break;
-          case 'PageDown':
-            terminal.scrollPages(1);
-            event.preventDefault();
-            break;
-        }
-      }, [readonly, enableSearch, fontSize]);
+        },
+        [readonly, enableSearch, fontSize],
+      );
 
       useEffect(() => {
         const element = terminalElementRef.current;
-        if (!element) return;
+
+        if (!element) {
+          return;
+        }
 
         const fitAddon = new FitAddon();
         const webLinksAddon = new WebLinksAddon();
         const serializeAddon = new SerializeAddon();
-        
+
         fitAddonRef.current = fitAddon;
         webLinksAddonRef.current = webLinksAddon;
         serializeAddonRef.current = serializeAddon;
 
         let searchAddon: SearchAddon | undefined;
+
         if (enableSearch) {
           searchAddon = new SearchAddon();
           searchAddonRef.current = searchAddon;
@@ -198,7 +218,7 @@ export const Terminal = memo(
         terminal.loadAddon(fitAddon);
         terminal.loadAddon(webLinksAddon);
         terminal.loadAddon(serializeAddon);
-        
+
         if (searchAddon) {
           terminal.loadAddon(searchAddon);
         }
@@ -211,6 +231,7 @@ export const Terminal = memo(
             renderAddonRef.current = webglAddon;
           } catch (error) {
             logger.warn('WebGL not supported, falling back to Canvas:', error);
+
             try {
               const canvasAddon = new CanvasAddon();
               terminal.loadAddon(canvasAddon);
@@ -262,12 +283,30 @@ export const Terminal = memo(
           terminal.dispose();
           logger.debug(`Terminal disposed [${id}]`);
         };
-      }, [id, enableSearch, enableWebGL, currentFontSize, fontFamily, cursorBlink, scrollback, readonly, handleResize, handleKeyDown, onTerminalReady, onTerminalResize, onData, onTitle]);
+      }, [
+        id,
+        enableSearch,
+        enableWebGL,
+        currentFontSize,
+        fontFamily,
+        cursorBlink,
+        scrollback,
+        readonly,
+        handleResize,
+        handleKeyDown,
+        onTerminalReady,
+        onTerminalResize,
+        onData,
+        onTitle,
+      ]);
 
       // Update theme when it changes
       useEffect(() => {
         const terminal = terminalRef.current;
-        if (!terminal) return;
+
+        if (!terminal) {
+          return;
+        }
 
         terminal.options.theme = getTerminalTheme(readonly ? { cursor: '#00000000' } : {});
         terminal.options.disableStdin = readonly;
@@ -276,9 +315,13 @@ export const Terminal = memo(
       // Update font size when it changes
       useEffect(() => {
         const terminal = terminalRef.current;
-        if (!terminal) return;
+
+        if (!terminal) {
+          return;
+        }
 
         terminal.options.fontSize = currentFontSize;
+
         // Trigger a resize to adjust to new font size
         setTimeout(handleResize, 100);
       }, [currentFontSize, handleResize]);
@@ -311,11 +354,14 @@ export const Terminal = memo(
           },
           paste: () => {
             if (terminal && !readonly) {
-              navigator.clipboard.readText().then(text => {
-                terminal.paste(text);
-              }).catch(err => {
-                logger.warn('Failed to paste from clipboard:', err);
-              });
+              navigator.clipboard
+                .readText()
+                .then((text) => {
+                  terminal.paste(text);
+                })
+                .catch((err) => {
+                  logger.warn('Failed to paste from clipboard:', err);
+                });
             }
           },
           search: (term: string) => {
@@ -336,10 +382,10 @@ export const Terminal = memo(
             terminal?.scrollToBottom();
           },
           increaseFontSize: () => {
-            setCurrentFontSize(prev => Math.min(prev + 2, 32));
+            setCurrentFontSize((prev) => Math.min(prev + 2, 32));
           },
           decreaseFontSize: () => {
-            setCurrentFontSize(prev => Math.max(prev - 2, 8));
+            setCurrentFontSize((prev) => Math.max(prev - 2, 8));
           },
           resetFontSize: () => {
             setCurrentFontSize(fontSize);
@@ -351,8 +397,8 @@ export const Terminal = memo(
       }, [readonly, fontSize]);
 
       return (
-        <div 
-          className={className} 
+        <div
+          className={className}
           ref={terminalElementRef}
           style={{
             opacity: isInitialized ? 1 : 0,
