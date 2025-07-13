@@ -4,7 +4,7 @@ import { Button } from './Button';
 import IconButton from './IconButton';
 import type { DesignScheme } from '~/types/design-scheme';
 import { defaultDesignScheme, designFeatures, designFonts, paletteRoles } from '~/types/design-scheme';
-import { classNames } from '~/lib/utils';
+import { classNames } from '~/utils/classNames';
 
 export interface ColorSchemeDialogProps {
   designScheme?: DesignScheme;
@@ -274,7 +274,19 @@ export const ColorSchemeDialog: React.FC<ColorSchemeDialogProps> = ({ setDesignS
 
   return (
     <div>
-      <IconButton className={classNames('transition-all', className)} onClick={() => setIsDialogOpen(!isDialogOpen)} icon="i-ph:palette text-xl" />
+      <button
+        className={classNames(
+          'inline-flex items-center justify-center rounded-lg transition-all duration-200',
+          'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white border border-zinc-600 hover:border-purple-500/50',
+          'focus:outline-none focus:ring-2 focus:ring-purple-500/50',
+          'w-8 h-8 text-sm',
+          'transition-all',
+          className
+        )}
+        onClick={() => setIsDialogOpen(!isDialogOpen)}
+      >
+        <div className="i-ph:palette text-xl w-4 h-4" />
+      </button>
 
       <DialogRoot open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <Dialog>
