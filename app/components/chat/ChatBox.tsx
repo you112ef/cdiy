@@ -66,7 +66,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
   return (
     <div
       className={classNames(
-        'relative bg-zinc-800/70 p-4 rounded-xl shadow-inner border border-zinc-700 relative w-full max-w-chat mx-auto z-prompt backdrop-blur-sm',
+        'relative bg-zinc-800/70 p-4 rounded-xl shadow-inner flex flex-col gap-4 border border-zinc-700 w-full max-w-md mx-auto z-prompt backdrop-blur-sm',
       )}
     >
       <svg className={classNames(styles.PromptEffectContainer)}>
@@ -159,7 +159,7 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           </button>
         </div>
       )}
-      <div className={classNames('relative shadow-md border border-zinc-600 backdrop-blur rounded-lg bg-zinc-800')}>
+      <div className={classNames('relative shadow-md border border-zinc-600 backdrop-blur rounded-lg bg-zinc-800 flex items-center gap-2 mt-4')}>
         <textarea
           ref={props.textareaRef}
           className={classNames(
@@ -230,25 +230,23 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           placeholder={props.chatMode === 'build' ? 'How can Bolt help you today?' : 'What would you like to discuss?'}
           translate="no"
         />
-        <ClientOnly>
-          {() => (
-            <SendButton
-              show={props.input.length > 0 || props.isStreaming || props.uploadedFiles.length > 0}
-              isStreaming={props.isStreaming}
-              disabled={!props.providerList || props.providerList.length === 0}
-              onClick={(event) => {
-                if (props.isStreaming) {
-                  props.handleStop?.();
-                  return;
-                }
+        <button
+          className="bg-green-500 hover:bg-green-600 rounded-lg p-2 ml-2"
+          onClick={() => {
+            if (props.isStreaming) {
+              props.handleStop?.();
+              return;
+            }
 
-                if (props.input.length > 0 || props.uploadedFiles.length > 0) {
-                  props.handleSendMessage?.(event);
-                }
-              }}
-            />
-          )}
-        </ClientOnly>
+            if (props.input.length > 0 || props.uploadedFiles.length > 0) {
+              // تمرير حدث وهمي من نوع UIEvent لتفادي خطأ النوع
+              const fakeEvent = { currentTarget: null } as unknown as React.UIEvent<Element, UIEvent>;
+              props.handleSendMessage?.(fakeEvent);
+            }
+          }}
+        >
+          إرسال
+        </button>
         <div className="flex justify-between items-center text-sm p-4 pt-2">
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
