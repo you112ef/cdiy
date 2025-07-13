@@ -8,7 +8,7 @@ import { LOCAL_PROVIDERS } from '~/lib/stores/settings';
 import FilePreview from './FilePreview';
 import { ScreenshotStateManager } from './ScreenshotStateManager';
 import { SendButton } from './SendButton.client';
-import { IconButton } from '~/components/ui/IconButton';
+import IconButton from '~/components/ui/IconButton';
 import { toast } from 'react-toastify';
 import { SpeechRecognitionButton } from '~/components/chat/SpeechRecognition';
 import { SupabaseConnection } from './SupabaseConnection';
@@ -251,14 +251,11 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
           <div className="flex gap-1 items-center">
             <ColorSchemeDialog designScheme={props.designScheme} setDesignScheme={props.setDesignScheme} />
             <IconButton
-              title="Upload file"
               className="transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2"
               onClick={() => props.handleFileUpload()}
-            >
-              <div className="i-ph:paperclip text-xl"></div>
-            </IconButton>
+              icon="i-ph:paperclip text-xl"
+            />
             <IconButton
-              title="Enhance prompt"
               disabled={props.input.length === 0 || props.enhancingPrompt}
               className={classNames(
                 'transition-all text-zinc-300 hover:text-white hover:bg-zinc-600 rounded-lg p-2',
@@ -268,13 +265,8 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 props.enhancePrompt?.();
                 toast.success('Prompt enhanced!');
               }}
-            >
-              {props.enhancingPrompt ? (
-                <div className="i-svg-spinners:90-ring-with-bg text-purple-400 text-xl animate-spin"></div>
-              ) : (
-                <div className="i-bolt:stars text-xl"></div>
-              )}
-            </IconButton>
+              icon={props.enhancingPrompt ? 'i-svg-spinners:90-ring-with-bg text-purple-400 text-xl animate-spin' : 'i-bolt:stars text-xl'}
+            />
 
             <SpeechRecognitionButton
               isListening={props.isListening}
@@ -284,7 +276,6 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
             />
             {props.chatStarted && (
               <IconButton
-                title="Discuss"
                 className={classNames(
                   'transition-all flex items-center gap-1 px-1.5 rounded-lg p-2',
                   props.chatMode === 'discuss'
@@ -294,23 +285,18 @@ export const ChatBox: React.FC<ChatBoxProps> = (props) => {
                 onClick={() => {
                   props.setChatMode?.(props.chatMode === 'discuss' ? 'build' : 'discuss');
                 }}
-              >
-                <div className={`i-ph:chats text-xl`} />
-                {props.chatMode === 'discuss' ? <span>Discuss</span> : <span />}
-              </IconButton>
+                icon="i-ph:chats text-xl"
+              />
             )}
             <IconButton
-              title="Model Settings"
               className={classNames('transition-all flex items-center gap-1 rounded-lg p-2', {
                 'bg-purple-500/20 text-purple-300 border border-purple-500/50': props.isModelSettingsCollapsed,
                 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white': !props.isModelSettingsCollapsed,
               })}
               onClick={() => props.setIsModelSettingsCollapsed(!props.isModelSettingsCollapsed)}
               disabled={!props.providerList || props.providerList.length === 0}
-            >
-              <div className={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
-              {props.isModelSettingsCollapsed ? <span className="text-xs">{props.model}</span> : <span />}
-            </IconButton>
+              icon={`i-ph:caret-${props.isModelSettingsCollapsed ? 'right' : 'down'} text-lg`}
+            />
           </div>
           {props.input.length > 3 ? (
             <div className="text-xs text-zinc-400">
