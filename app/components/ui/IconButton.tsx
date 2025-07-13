@@ -5,11 +5,9 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   icon?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   variant?: 'default' | 'ghost' | 'outline' | 'secondary' | 'danger';
-  className?: string;
-  disabled?: boolean;
 }
 
-const IconButton = ({
+export function IconButton({
   icon,
   size = 'md',
   variant = 'default',
@@ -17,7 +15,7 @@ const IconButton = ({
   children,
   disabled,
   ...props
-}: IconButtonProps) => {
+}: IconButtonProps) {
   const sizeClasses = {
     sm: 'w-6 h-6 text-xs',
     md: 'w-8 h-8 text-sm',
@@ -54,5 +52,3 @@ const IconButton = ({
     </button>
   );
 }
-
-export default IconButton;

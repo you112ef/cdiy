@@ -1,32 +1,28 @@
-import IconButton from '~/components/ui/IconButton';
+import { IconButton } from '~/components/ui/IconButton';
 import { classNames } from '~/utils/classNames';
 import React from 'react';
-
-interface SpeechRecognitionButtonProps {
-  isListening: boolean;
-  onStart: () => void;
-  onStop: () => void;
-  disabled: boolean;
-  className?: string;
-}
 
 export const SpeechRecognitionButton = ({
   isListening,
   onStart,
   onStop,
   disabled,
-  className,
-}: SpeechRecognitionButtonProps) => {
+}: {
+  isListening: boolean;
+  onStart: () => void;
+  onStop: () => void;
+  disabled: boolean;
+}) => {
   return (
     <IconButton
+      title={isListening ? 'Stop listening' : 'Start speech recognition'}
       disabled={disabled}
-      className={classNames(
-        'transition-all',
-        isListening ? 'bg-green-500 text-white' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white',
-        className,
-      )}
+      className={classNames('transition-all', {
+        'text-bolt-elements-item-contentAccent': isListening,
+      })}
       onClick={isListening ? onStop : onStart}
-      icon={isListening ? 'i-ph:microphone-slash text-xl' : 'i-ph:microphone text-xl'}
-    />
+    >
+      {isListening ? <div className="i-ph:microphone-slash text-xl" /> : <div className="i-ph:microphone text-xl" />}
+    </IconButton>
   );
 };
