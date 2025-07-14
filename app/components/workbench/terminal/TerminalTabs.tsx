@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { type RefObject } from 'react';
-import { IconButton } from '~/components/ui/IconButton';
+import IconButton from '~/components/ui/IconButton';
 import { type Theme } from '~/lib/stores/theme';
 import { classNames } from '~/utils/classNames';
 import { Terminal, type TerminalRef } from './Terminal';
