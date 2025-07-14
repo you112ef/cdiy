@@ -45,13 +45,11 @@ const inlineThemeCode = stripIndents`
   setTutorialKitTheme();
 
   function setTutorialKitTheme() {
-    let theme = localStorage.getItem('bolt_theme');
-
-    if (!theme) {
-      theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-
+    let theme = localStorage.getItem('bolt_theme') || 'dark';
     document.querySelector('html')?.setAttribute('data-theme', theme);
+    
+    // Force dark theme for unified design
+    document.documentElement.classList.add('dark');
   }
 `;
 
@@ -66,29 +64,31 @@ export const Head = createHead(() => (
 ));
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const theme = useStore(themeStore);
+  const _theme = useStore(themeStore);
 
   useEffect(() => {
-    document.querySelector('html')?.setAttribute('data-theme', theme);
-  }, [theme]);
+    // Force dark theme for unified design
+    document.querySelector('html')?.setAttribute('data-theme', 'dark');
+    document.documentElement.classList.add('dark');
+  }, [_theme]);
 
   return (
-    <>
+    <div className="bg-gradient-to-b from-[#1f1b2e] to-[#151321] text-white min-h-screen">
       <ClientOnly>{() => <DndProvider backend={HTML5Backend}>{children}</DndProvider>}</ClientOnly>
       <ScrollRestoration />
       <Scripts />
-    </>
+    </div>
   );
 }
 
 import { logStore } from './lib/stores/logs';
 
 export default function App() {
-  const theme = useStore(themeStore);
+  const _theme = useStore(themeStore);
 
   useEffect(() => {
     logStore.logSystem('Application initialized', {
-      theme,
+      theme: 'dark', // Force dark theme
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),

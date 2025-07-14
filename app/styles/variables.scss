@@ -227,6 +227,15 @@
   --workbench-inner-width: var(--workbench-width);
   --workbench-left: calc(100% - var(--workbench-width));
 
+  /* Mobile-responsive layout variables */
+  --mobile-header-height: 48px;
+  --mobile-chat-max-width: 100vw;
+  --mobile-chat-min-width: 100vw;
+  --mobile-workbench-width: 100vw;
+  --mobile-padding: 0.75rem;
+  --mobile-gap: 0.5rem;
+  --mobile-border-radius: 0.5rem;
+
   /* Toasts */
   --toastify-color-progress-success: var(--bolt-elements-icon-success);
   --toastify-color-progress-error: var(--bolt-elements-icon-error);
@@ -252,4 +261,14 @@
   --bolt-elements-terminal-color-brightMagenta: var(--bolt-terminal-brightMagenta);
   --bolt-elements-terminal-color-brightCyan: var(--bolt-terminal-brightCyan);
   --bolt-elements-terminal-color-brightWhite: var(--bolt-terminal-brightWhite);
+}
+
+/* Mobile-specific overrides */
+@media (max-width: 640px) {
+  :root {
+    --header-height: var(--mobile-header-height);
+    --chat-max-width: var(--mobile-chat-max-width);
+    --chat-min-width: var(--mobile-chat-min-width);
+    --workbench-width: var(--mobile-workbench-width);
+  }
 }

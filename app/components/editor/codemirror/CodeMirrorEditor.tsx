@@ -1,7 +1,17 @@
-import { acceptCompletion, autocompletion, closeBrackets } from '@codemirror/autocomplete';
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands';
-import { bracketMatching, foldGutter, indentOnInput, indentUnit } from '@codemirror/language';
-import { searchKeymap } from '@codemirror/search';
+import { acceptCompletion, autocompletion, closeBrackets, startCompletion } from '@codemirror/autocomplete';
+import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
+import {
+  bracketMatching,
+  foldGutter,
+  indentOnInput,
+  indentUnit,
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  codeFolding,
+  foldAll,
+  unfoldAll,
+} from '@codemirror/language';
+import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { Compartment, EditorSelection, EditorState, StateEffect, StateField, type Extension } from '@codemirror/state';
 import {
   drawSelection,
@@ -15,6 +25,10 @@ import {
   showTooltip,
   tooltips,
   type Tooltip,
+  rectangularSelection,
+  crosshairCursor,
+  highlightSpecialChars,
+  placeholder,
 } from '@codemirror/view';
 import { memo, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { Theme } from '~/types/theme';
@@ -44,6 +58,15 @@ export interface EditorSettings {
   fontSize?: string;
   gutterFontSize?: string;
   tabSize?: number;
+  lineWrapping?: boolean;
+  showLineNumbers?: boolean;
+  showFoldGutter?: boolean;
+  enableAutocompletion?: boolean;
+  enableBracketMatching?: boolean;
+  enableHighlightSelectionMatches?: boolean;
+  enableMultipleCursors?: boolean;
+  enableVimMode?: boolean;
+  minimap?: boolean;
 }
 
 type TextEditorDocument = EditorDocument & {
@@ -134,14 +157,24 @@ export const CodeMirrorEditor = memo(
     onChange,
     onSave,
     theme,
-    settings,
+    settings = {
+      fontSize: '14px',
+      tabSize: 2,
+      lineWrapping: false,
+      showLineNumbers: true,
+      showFoldGutter: true,
+      enableAutocompletion: true,
+      enableBracketMatching: true,
+      enableHighlightSelectionMatches: true,
+      enableMultipleCursors: true,
+      enableVimMode: false,
+      minimap: false,
+    },
     className = '',
   }: Props) => {
     renderLogger.trace('CodeMirrorEditor');
 
     const [languageCompartment] = useState(new Compartment());
-
-    // Add a compartment for the env masking extension
     const [envMaskingCompartment] = useState(new Compartment());
 
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -178,10 +211,8 @@ export const CodeMirrorEditor = memo(
         const column = doc.scroll.column ?? 0;
 
         try {
-          // Check if the line number is valid for the current document
           const totalLines = viewRef.current.state.doc.lines;
 
-          // Only proceed if the line number is within the document's range
           if (line < totalLines) {
             const linePos = viewRef.current.state.doc.line(line + 1).from + column;
             viewRef.current.dispatch({
@@ -263,7 +294,6 @@ export const CodeMirrorEditor = memo(
         ]);
 
         view.setState(state);
-
         setNoDocument(view);
 
         return;
@@ -308,7 +338,7 @@ export const CodeMirrorEditor = memo(
           effects: [editableStateEffect.of(false)],
         });
       }
-    }, [doc?.value, editable, doc?.filePath, autoFocusOnDocumentChange]);
+    }, [doc?.value, editable, doc?.filePath, autoFocusOnDocumentChange, settings]);
 
     return (
       <div className={classNames('relative h-full', className)}>
@@ -326,94 +356,174 @@ CodeMirrorEditor.displayName = 'CodeMirrorEditor';
 function newEditorState(
   content: string,
   theme: Theme,
-  settings: EditorSettings | undefined,
+  settings: EditorSettings,
   onScrollRef: MutableRefObject<OnScrollCallback | undefined>,
   debounceScroll: number,
   onFileSaveRef: MutableRefObject<OnSaveCallback | undefined>,
   extensions: Extension[],
 ) {
-  return EditorState.create({
-    doc: content,
-    extensions: [
-      EditorView.domEventHandlers({
-        scroll: debounce((event, view) => {
-          if (event.target !== view.scrollDOM) {
-            return;
-          }
+  const baseExtensions: Extension[] = [
+    // Enhanced event handlers
+    EditorView.domEventHandlers({
+      scroll: debounce((event, view) => {
+        if (event.target !== view.scrollDOM) {
+          return;
+        }
 
-          onScrollRef.current?.({ left: view.scrollDOM.scrollLeft, top: view.scrollDOM.scrollTop });
-        }, debounceScroll),
-        keydown: (event, view) => {
-          if (view.state.readOnly) {
-            view.dispatch({
-              effects: [readOnlyTooltipStateEffect.of(event.key !== 'Escape')],
-            });
+        onScrollRef.current?.({ left: view.scrollDOM.scrollLeft, top: view.scrollDOM.scrollTop });
+      }, debounceScroll),
+      keydown: (event, view) => {
+        if (view.state.readOnly) {
+          view.dispatch({
+            effects: [readOnlyTooltipStateEffect.of(event.key !== 'Escape')],
+          });
+          return true;
+        }
 
-            return true;
-          }
+        return false;
+      },
+    }),
 
+    // Core features
+    getTheme(theme, settings),
+    history(),
+    syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+
+    // Enhanced keymap
+    keymap.of([
+      ...defaultKeymap,
+      ...historyKeymap,
+      ...searchKeymap,
+      { key: 'Tab', run: acceptCompletion },
+      indentWithTab,
+      {
+        key: 'Mod-s',
+        preventDefault: true,
+        run: () => {
+          onFileSaveRef.current?.();
+          return true;
+        },
+      },
+      {
+        key: 'Mod-/',
+        run: () => {
+          // Toggle comment functionality would go here
           return false;
         },
-      }),
-      getTheme(theme, settings),
-      history(),
-      keymap.of([
-        ...defaultKeymap,
-        ...historyKeymap,
-        ...searchKeymap,
-        { key: 'Tab', run: acceptCompletion },
-        {
-          key: 'Mod-s',
-          preventDefault: true,
-          run: () => {
-            onFileSaveRef.current?.();
-            return true;
-          },
+      },
+      {
+        key: 'Mod-d',
+        run: () => {
+          // Duplicate line functionality would go here
+          return false;
         },
-        indentKeyBinding,
-      ]),
-      indentUnit.of('\t'),
+      },
+      {
+        key: 'Ctrl-Space',
+        run: startCompletion,
+      },
+      {
+        key: 'Mod-Shift-k',
+        run: () => {
+          // Delete line functionality would go here
+          return false;
+        },
+      },
+      {
+        key: 'Mod-Shift-[',
+        run: foldAll,
+      },
+      {
+        key: 'Mod-Shift-]',
+        run: unfoldAll,
+      },
+      indentKeyBinding,
+    ]),
+
+    // Text editing features
+    indentUnit.of('\t'),
+    EditorState.tabSize.of(settings?.tabSize ?? 2),
+    indentOnInput(),
+
+    // Visual enhancements
+    highlightSpecialChars(),
+    drawSelection(),
+    dropCursor(),
+    scrollPastEnd(),
+    placeholder('Start typing...'),
+
+    // State management
+    editableTooltipField,
+    editableStateField,
+    EditorState.readOnly.from(editableStateField, (editable) => !editable),
+
+    // Tooltips configuration
+    tooltips({
+      position: 'absolute',
+      parent: document.body,
+      tooltipSpace: (view) => {
+        const rect = view.dom.getBoundingClientRect();
+        return {
+          top: rect.top - 50,
+          left: rect.left,
+          bottom: rect.bottom,
+          right: rect.right + 10,
+        };
+      },
+    }),
+  ];
+
+  // Conditional features based on settings
+  if (settings.showLineNumbers !== false) {
+    baseExtensions.push(lineNumbers());
+    baseExtensions.push(highlightActiveLineGutter());
+  }
+
+  if (settings.enableAutocompletion !== false) {
+    baseExtensions.push(
       autocompletion({
         closeOnBlur: false,
+        activateOnTyping: true,
+        override: [],
       }),
-      tooltips({
-        position: 'absolute',
-        parent: document.body,
-        tooltipSpace: (view) => {
-          const rect = view.dom.getBoundingClientRect();
+    );
+  }
 
-          return {
-            top: rect.top - 50,
-            left: rect.left,
-            bottom: rect.bottom,
-            right: rect.right + 10,
-          };
-        },
-      }),
-      closeBrackets(),
-      lineNumbers(),
-      scrollPastEnd(),
-      dropCursor(),
-      drawSelection(),
-      bracketMatching(),
-      EditorState.tabSize.of(settings?.tabSize ?? 2),
-      indentOnInput(),
-      editableTooltipField,
-      editableStateField,
-      EditorState.readOnly.from(editableStateField, (editable) => !editable),
-      highlightActiveLineGutter(),
-      highlightActiveLine(),
+  if (settings.enableBracketMatching !== false) {
+    baseExtensions.push(closeBrackets(), bracketMatching());
+  }
+
+  if (settings.enableHighlightSelectionMatches !== false) {
+    baseExtensions.push(highlightSelectionMatches());
+  }
+
+  if (settings.enableMultipleCursors !== false) {
+    baseExtensions.push(rectangularSelection(), crosshairCursor());
+  }
+
+  if (settings.showFoldGutter !== false) {
+    baseExtensions.push(
+      codeFolding(),
       foldGutter({
         markerDOM: (open) => {
           const icon = document.createElement('div');
-
           icon.className = `fold-icon ${open ? 'i-ph-caret-down-bold' : 'i-ph-caret-right-bold'}`;
 
           return icon;
         },
       }),
-      ...extensions,
-    ],
+    );
+  }
+
+  if (settings.lineWrapping) {
+    baseExtensions.push(EditorView.lineWrapping);
+  }
+
+  baseExtensions.push(highlightActiveLine());
+
+  return EditorState.create({
+    doc: content,
+    extensions: [...baseExtensions, ...extensions],
   });
 }
 
@@ -478,17 +588,18 @@ function setEditorDocument(
         const column = doc.scroll.column ?? 0;
 
         try {
-          // Check if the line number is valid for the current document
           const totalLines = view.state.doc.lines;
 
-          // Only proceed if the line number is within the document's range
           if (line < totalLines) {
             const linePos = view.state.doc.line(line + 1).from + column;
             view.dispatch({
               selection: { anchor: linePos },
               scrollIntoView: true,
             });
-            view.focus();
+
+            if (autoFocus) {
+              view.focus();
+            }
           } else {
             logger.warn(`Invalid line number ${line + 1} in ${totalLines}-line document`);
           }
@@ -499,63 +610,31 @@ function setEditorDocument(
         return;
       }
 
-      const needsScrolling = currentLeft !== newLeft || currentTop !== newTop;
-
-      if (autoFocus && editable) {
-        if (needsScrolling) {
-          view.scrollDOM.addEventListener(
-            'scroll',
-            () => {
-              view.focus();
-            },
-            { once: true },
-          );
-        } else {
-          view.focus();
-        }
+      if (currentLeft !== newLeft || currentTop !== newTop) {
+        view.scrollDOM.scrollTo(newLeft, newTop);
       }
 
-      view.scrollDOM.scrollTo(newLeft, newTop);
+      if (autoFocus) {
+        view.focus();
+      }
     });
   });
 }
 
 function getReadOnlyTooltip(state: EditorState) {
-  if (!state.readOnly) {
-    return [];
-  }
+  return [
+    {
+      pos: state.selection.main.head,
+      above: false,
+      strictSide: true,
+      arrow: true,
+      create: () => {
+        const dom = document.createElement('div');
+        dom.className = 'cm-readonly-tooltip';
+        dom.textContent = 'File is read-only';
 
-  // Get the current document from the module-level reference
-  const currentDoc = currentDocRef;
-  let tooltipMessage = 'Cannot edit file while AI response is being generated';
-
-  // If we have a current document, check if it's locked
-  if (currentDoc?.filePath) {
-    const currentChatId = getCurrentChatId();
-    const { locked } = isFileLocked(currentDoc.filePath, currentChatId);
-
-    if (locked) {
-      tooltipMessage = 'This file is locked and cannot be edited';
-    }
-  }
-
-  return state.selection.ranges
-    .filter((range) => {
-      return range.empty;
-    })
-    .map((range) => {
-      return {
-        pos: range.head,
-        above: true,
-        strictSide: true,
-        arrow: true,
-        create: () => {
-          const divElement = document.createElement('div');
-          divElement.className = 'cm-readonly-tooltip';
-          divElement.textContent = tooltipMessage;
-
-          return { dom: divElement };
-        },
-      };
-    });
+        return { dom };
+      },
+    },
+  ];
 }

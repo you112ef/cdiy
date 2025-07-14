@@ -104,6 +104,31 @@ export default defineConfig({
     'transition-theme': 'transition-[background-color,border-color,color] duration-150 bolt-ease-cubic-bezier',
     kdb: 'bg-bolt-elements-code-background text-bolt-elements-code-text py-1 px-1.5 rounded-md',
     'max-w-chat': 'max-w-[var(--chat-max-width)]',
+    // Mobile-responsive button sizes
+    'mobile-btn-sm': 'h-7 px-2 py-1 text-xs sm:h-8 sm:px-3 sm:py-2 sm:text-sm',
+    'mobile-btn-default': 'h-8 px-3 py-1.5 text-sm sm:h-9 sm:px-4 sm:py-2',
+    'mobile-btn-lg': 'h-9 px-4 py-2 text-sm sm:h-10 sm:px-8 sm:text-base',
+    'mobile-btn-icon': 'h-7 w-7 sm:h-9 sm:w-9',
+    // Mobile-responsive input sizes
+    'mobile-input': 'h-8 px-2 py-1.5 text-sm sm:h-10 sm:px-3 sm:py-2',
+    // Mobile-responsive text sizes
+    'mobile-text-xs': 'text-xs sm:text-sm',
+    'mobile-text-sm': 'text-sm sm:text-base',
+    'mobile-text-base': 'text-base sm:text-lg',
+    'mobile-text-lg': 'text-lg sm:text-xl',
+    'mobile-text-xl': 'text-xl sm:text-2xl',
+    // Mobile-responsive spacing
+    'mobile-p-sm': 'p-2 sm:p-3',
+    'mobile-p-md': 'p-3 sm:p-4',
+    'mobile-p-lg': 'p-4 sm:p-6',
+    'mobile-gap-sm': 'gap-1 sm:gap-2',
+    'mobile-gap-md': 'gap-2 sm:gap-3',
+    'mobile-gap-lg': 'gap-3 sm:gap-4',
+    // Mobile-responsive icon sizes
+    'mobile-icon-sm': 'text-sm sm:text-base',
+    'mobile-icon-md': 'text-base sm:text-lg',
+    'mobile-icon-lg': 'text-lg sm:text-xl',
+    'mobile-icon-xl': 'text-xl sm:text-2xl',
   },
   rules: [
     /**

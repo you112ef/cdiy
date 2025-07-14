@@ -1,84 +1,54 @@
-import { memo, forwardRef, type ForwardedRef } from 'react';
 import { classNames } from '~/utils/classNames';
+import type { ButtonHTMLAttributes } from 'react';
 
-type IconSize = 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
-
-interface BaseIconButtonProps {
-  size?: IconSize;
-  className?: string;
-  iconClassName?: string;
-  disabledClassName?: string;
-  title?: string;
-  disabled?: boolean;
-  onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  icon?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'default' | 'ghost' | 'outline' | 'secondary' | 'danger';
 }
 
-type IconButtonWithoutChildrenProps = {
-  icon: string;
-  children?: undefined;
-} & BaseIconButtonProps;
+export function IconButton({
+  icon,
+  size = 'md',
+  variant = 'default',
+  className,
+  children,
+  disabled,
+  ...props
+}: IconButtonProps) {
+  const sizeClasses = {
+    sm: 'w-6 h-6 text-xs',
+    md: 'w-8 h-8 text-sm',
+    lg: 'w-10 h-10 text-base',
+    xl: 'w-12 h-12 text-lg',
+  };
 
-type IconButtonWithChildrenProps = {
-  icon?: undefined;
-  children: string | JSX.Element | JSX.Element[];
-} & BaseIconButtonProps;
+  const variantClasses = {
+    default:
+      'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white border border-zinc-600 hover:border-purple-500/50',
+    ghost: 'bg-transparent text-zinc-300 hover:bg-zinc-700 hover:text-white',
+    outline:
+      'bg-transparent text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-600 hover:border-purple-500/50',
+    secondary: 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-700',
+    danger: 'bg-red-600 text-white hover:bg-red-700 border border-red-600',
+  };
 
-type IconButtonProps = IconButtonWithoutChildrenProps | IconButtonWithChildrenProps;
-
-// Componente IconButton com suporte a refs
-export const IconButton = memo(
-  forwardRef(
-    (
-      {
-        icon,
-        size = 'xl',
+  return (
+    <button
+      className={classNames(
+        'inline-flex items-center justify-center rounded-lg transition-all duration-200',
+        'focus:outline-none focus:ring-2 focus:ring-purple-500/50',
+        'disabled:opacity-50 disabled:cursor-not-allowed',
+        sizeClasses[size],
+        variantClasses[variant],
+        disabled ? 'opacity-50 cursor-not-allowed' : '',
         className,
-        iconClassName,
-        disabledClassName,
-        disabled = false,
-        title,
-        onClick,
-        children,
-      }: IconButtonProps,
-      ref: ForwardedRef<HTMLButtonElement>,
-    ) => {
-      return (
-        <button
-          ref={ref}
-          className={classNames(
-            'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed focus:outline-none',
-            {
-              [classNames('opacity-30', disabledClassName)]: disabled,
-            },
-            className,
-          )}
-          title={title}
-          disabled={disabled}
-          onClick={(event) => {
-            if (disabled) {
-              return;
-            }
-
-            onClick?.(event);
-          }}
-        >
-          {children ? children : <div className={classNames(icon, getIconSize(size), iconClassName)}></div>}
-        </button>
-      );
-    },
-  ),
-);
-
-function getIconSize(size: IconSize) {
-  if (size === 'sm') {
-    return 'text-sm';
-  } else if (size === 'md') {
-    return 'text-md';
-  } else if (size === 'lg') {
-    return 'text-lg';
-  } else if (size === 'xl') {
-    return 'text-xl';
-  } else {
-    return 'text-2xl';
-  }
+      )}
+      disabled={disabled}
+      {...props}
+    >
+      {icon && <div className={classNames(icon, 'w-4 h-4')} />}
+      {children}
+    </button>
+  );
 }
