@@ -7,14 +7,14 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'default' | 'ghost' | 'outline' | 'secondary' | 'danger';
 }
 
-export function IconButton({ 
-  icon, 
-  size = 'md', 
+export function IconButton({
+  icon,
+  size = 'md',
   variant = 'default',
-  className, 
-  children, 
+  className,
+  children,
   disabled,
-  ...props 
+  ...props
 }: IconButtonProps) {
   const sizeClasses = {
     sm: 'w-6 h-6 text-xs',
@@ -24,9 +24,11 @@ export function IconButton({
   };
 
   const variantClasses = {
-    default: 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white border border-zinc-600 hover:border-purple-500/50',
+    default:
+      'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white border border-zinc-600 hover:border-purple-500/50',
     ghost: 'bg-transparent text-zinc-300 hover:bg-zinc-700 hover:text-white',
-    outline: 'bg-transparent text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-600 hover:border-purple-500/50',
+    outline:
+      'bg-transparent text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-600 hover:border-purple-500/50',
     secondary: 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700 hover:text-white border border-zinc-700',
     danger: 'bg-red-600 text-white hover:bg-red-700 border border-red-600',
   };

@@ -28,7 +28,7 @@ export const DialogButton = memo(({ type, children, onClick, disabled }: DialogB
           : type === 'secondary'
             ? 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600 hover:text-white focus:ring-2 focus:ring-zinc-500/50'
             : 'bg-red-600 text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500/50',
-        disabled ? 'opacity-50 cursor-not-allowed' : ''
+        disabled ? 'opacity-50 cursor-not-allowed' : '',
       )}
       onClick={onClick}
       disabled={disabled}
@@ -51,10 +51,7 @@ export const DialogTitle = memo(({ className, children, ...props }: RadixDialog.
 
 export const DialogDescription = memo(({ className, children, ...props }: RadixDialog.DialogDescriptionProps) => {
   return (
-    <RadixDialog.Description
-      className={classNames('text-sm text-zinc-400 mt-1', className)}
-      {...props}
-    >
+    <RadixDialog.Description className={classNames('text-sm text-zinc-400 mt-1', className)} {...props}>
       {children}
     </RadixDialog.Description>
   );
@@ -214,9 +211,9 @@ export function ConfirmationDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="mb-6">{description}</DialogDescription>
           <div className="flex justify-end gap-3">
-            <Button 
-              variant="outline" 
-              onClick={onClose} 
+            <Button
+              variant="outline"
+              onClick={onClose}
               disabled={isLoading}
               className="bg-zinc-700 border-zinc-600 text-zinc-300 hover:bg-zinc-600 hover:text-white"
             >
@@ -375,9 +372,7 @@ export function SelectionDialog({
             htmlFor={`item-${item.id}`}
             className={classNames(
               'text-sm font-medium cursor-pointer',
-              selectedItems.includes(item.id)
-                ? 'text-purple-300'
-                : 'text-white',
+              selectedItems.includes(item.id) ? 'text-purple-300' : 'text-white',
             )}
           >
             {item.label}

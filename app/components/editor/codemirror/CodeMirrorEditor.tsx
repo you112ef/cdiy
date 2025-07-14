@@ -1,6 +1,16 @@
 import { acceptCompletion, autocompletion, closeBrackets, startCompletion } from '@codemirror/autocomplete';
 import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
-import { bracketMatching, foldGutter, indentOnInput, indentUnit, syntaxHighlighting, defaultHighlightStyle, codeFolding, foldAll, unfoldAll } from '@codemirror/language';
+import {
+  bracketMatching,
+  foldGutter,
+  indentOnInput,
+  indentUnit,
+  syntaxHighlighting,
+  defaultHighlightStyle,
+  codeFolding,
+  foldAll,
+  unfoldAll,
+} from '@codemirror/language';
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search';
 import { Compartment, EditorSelection, EditorState, StateEffect, StateField, type Extension } from '@codemirror/state';
 import {
@@ -285,6 +295,7 @@ export const CodeMirrorEditor = memo(
 
         view.setState(state);
         setNoDocument(view);
+
         return;
       }
 
@@ -358,6 +369,7 @@ function newEditorState(
         if (event.target !== view.scrollDOM) {
           return;
         }
+
         onScrollRef.current?.({ left: view.scrollDOM.scrollLeft, top: view.scrollDOM.scrollTop });
       }, debounceScroll),
       keydown: (event, view) => {
@@ -367,15 +379,16 @@ function newEditorState(
           });
           return true;
         }
+
         return false;
       },
     }),
-    
+
     // Core features
     getTheme(theme, settings),
     history(),
     syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
-    
+
     // Enhanced keymap
     keymap.of([
       ...defaultKeymap,
@@ -426,24 +439,24 @@ function newEditorState(
       },
       indentKeyBinding,
     ]),
-    
+
     // Text editing features
     indentUnit.of('\t'),
     EditorState.tabSize.of(settings?.tabSize ?? 2),
     indentOnInput(),
-    
+
     // Visual enhancements
     highlightSpecialChars(),
     drawSelection(),
     dropCursor(),
     scrollPastEnd(),
     placeholder('Start typing...'),
-    
+
     // State management
     editableTooltipField,
     editableStateField,
     EditorState.readOnly.from(editableStateField, (editable) => !editable),
-    
+
     // Tooltips configuration
     tooltips({
       position: 'absolute',
@@ -472,15 +485,12 @@ function newEditorState(
         closeOnBlur: false,
         activateOnTyping: true,
         override: [],
-      })
+      }),
     );
   }
 
   if (settings.enableBracketMatching !== false) {
-    baseExtensions.push(
-      closeBrackets(),
-      bracketMatching()
-    );
+    baseExtensions.push(closeBrackets(), bracketMatching());
   }
 
   if (settings.enableHighlightSelectionMatches !== false) {
@@ -488,10 +498,7 @@ function newEditorState(
   }
 
   if (settings.enableMultipleCursors !== false) {
-    baseExtensions.push(
-      rectangularSelection(),
-      crosshairCursor()
-    );
+    baseExtensions.push(rectangularSelection(), crosshairCursor());
   }
 
   if (settings.showFoldGutter !== false) {
@@ -501,9 +508,10 @@ function newEditorState(
         markerDOM: (open) => {
           const icon = document.createElement('div');
           icon.className = `fold-icon ${open ? 'i-ph-caret-down-bold' : 'i-ph-caret-right-bold'}`;
+
           return icon;
         },
-      })
+      }),
     );
   }
 
@@ -588,7 +596,7 @@ function setEditorDocument(
               selection: { anchor: linePos },
               scrollIntoView: true,
             });
-            
+
             if (autoFocus) {
               view.focus();
             }
@@ -605,7 +613,7 @@ function setEditorDocument(
       if (currentLeft !== newLeft || currentTop !== newTop) {
         view.scrollDOM.scrollTo(newLeft, newTop);
       }
-      
+
       if (autoFocus) {
         view.focus();
       }
@@ -624,6 +632,7 @@ function getReadOnlyTooltip(state: EditorState) {
         const dom = document.createElement('div');
         dom.className = 'cm-readonly-tooltip';
         dom.textContent = 'File is read-only';
+
         return { dom };
       },
     },

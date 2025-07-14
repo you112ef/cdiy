@@ -64,13 +64,13 @@ export const Head = createHead(() => (
 ));
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const theme = useStore(themeStore);
+  const _theme = useStore(themeStore);
 
   useEffect(() => {
     // Force dark theme for unified design
     document.querySelector('html')?.setAttribute('data-theme', 'dark');
     document.documentElement.classList.add('dark');
-  }, [theme]);
+  }, [_theme]);
 
   return (
     <div className="bg-gradient-to-b from-[#1f1b2e] to-[#151321] text-white min-h-screen">
@@ -84,7 +84,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 import { logStore } from './lib/stores/logs';
 
 export default function App() {
-  const theme = useStore(themeStore);
+  const _theme = useStore(themeStore);
 
   useEffect(() => {
     logStore.logSystem('Application initialized', {

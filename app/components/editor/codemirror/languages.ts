@@ -43,7 +43,9 @@ export const supportedLanguages = [
     extensions: ['tsx'],
     async load() {
       try {
-        return import('@codemirror/lang-javascript').then((module) => module.javascript({ jsx: true, typescript: true }));
+        return import('@codemirror/lang-javascript').then((module) =>
+          module.javascript({ jsx: true, typescript: true }),
+        );
       } catch (error) {
         console.warn('Failed to load TSX language support:', error);
         return undefined;
@@ -110,7 +112,7 @@ export const supportedLanguages = [
       }
     },
   }),
-  
+
   // Data & Config
   LanguageDescription.of({
     name: 'JSON',
@@ -124,7 +126,7 @@ export const supportedLanguages = [
       }
     },
   }),
-  
+
   // Documentation
   LanguageDescription.of({
     name: 'Markdown',
@@ -138,7 +140,7 @@ export const supportedLanguages = [
       }
     },
   }),
-  
+
   // Programming Languages
   LanguageDescription.of({
     name: 'Python',
@@ -164,7 +166,7 @@ export const supportedLanguages = [
       }
     },
   }),
-  
+
   // WebAssembly
   LanguageDescription.of({
     name: 'WebAssembly',
@@ -202,5 +204,5 @@ export function getLanguageFromFileName(fileName: string): string {
 }
 
 export function getSupportedExtensions(): string[] {
-  return supportedLanguages.flatMap(lang => lang.extensions || []);
+  return supportedLanguages.flatMap((lang) => lang.extensions || []);
 }

@@ -23,11 +23,7 @@ export const SendButton = memo(({ show, isStreaming, className, disabled, ...pro
       disabled={disabled}
       {...props}
     >
-      {isStreaming ? (
-        <div className="i-ph:stop w-4 h-4" />
-      ) : (
-        <div className="i-ph:paper-plane-tilt w-4 h-4" />
-      )}
+      {isStreaming ? <div className="i-ph:stop w-4 h-4" /> : <div className="i-ph:paper-plane-tilt w-4 h-4" />}
     </button>
   );
 });
